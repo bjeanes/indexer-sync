@@ -1,20 +1,11 @@
 use clap::{crate_authors, crate_version, ArgGroup, Clap};
-use reqwest::Client;
 use serde::Deserialize;
-use serde_json::Value;
 use url::Url;
 
-fn is_http_url(url: &str) -> Result<(), String> {
-    match Url::parse(url) {
-        Err(e) => Err(e.to_string()),
-        Ok(url) => match url.scheme() {
-            "http" | "https" => Ok(()),
-            scheme => Err(
-                format!("URL must be an http:// or https:// URL (given {})", scheme).to_string(),
-            ),
-        },
-    }
-}
+mod jackett;
+mod util;
+
+use util::is_http_url;
 
 /// At least one [src] and at least one [dst] must be specified in order to sync.
 #[derive(Clap, Debug)]
@@ -66,18 +57,9 @@ enum IndexerPrivacy {
     SemiPrivate,
 }
 
-#[derive(Debug, Deserialize)]
-struct JackettIndexer {
-    id: String,
-    name: String,
-
-    #[serde(rename = "type")]
-    privacy: IndexerPrivacy,
-}
-
 #[derive(Debug)]
 enum SourceIndexer {
-    Jackett(JackettIndexer),
+    Jackett(jackett::Indexer),
 }
 
 #[derive(Debug)]
@@ -88,7 +70,7 @@ enum FeedUrl {
 }
 
 #[derive(Debug)]
-struct Indexer {
+pub struct Indexer {
     source: SourceIndexer,
     name: String,
     // TODO: is there a way to model this to only allow construction of an
@@ -100,69 +82,10 @@ struct Indexer {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts: Opts = Opts::parse();
-    let client = Client::builder()
-        .cookie_store(true)
-        .gzip(true)
-        .build()
-        .unwrap();
-
-    let mut indexers: Vec<Indexer> = vec![];
 
     if let Some(url) = opts.jackett.clone() {
-        let url = url.join("/api/v2.0/").unwrap();
-
-        // TODO: handle when auth is required
-        // Fill cookie store
-        let _ = client.get(url.clone()).send().await?;
-        let server_config: Value = client
-            .get(url.clone().join("server/config").unwrap())
-            .send()
-            .await?
-            .json()
-            .await?;
-
-        let jackett_api_key = server_config["api_key"]
-            .as_str()
-            .expect("API Key for Jackett could not be found.");
-
-        println!("{:?}", jackett_api_key);
-
-        let jacket_indexers: Vec<JackettIndexer> = client
-            .get(url.clone().join("indexers?configured=true").unwrap())
-            .send()
-            .await?
-            .json()
-            .await?;
-
-        indexers.extend(jacket_indexers.into_iter().map(|ind| {
-            let results_url = url
-                .join(&format!("indexers/{}/results/torznab", &ind.id))
-                .unwrap();
-            Indexer {
-                name: format!("{} [jackett:{}]", &ind.name, &ind.id),
-                urls: vec![
-                    FeedUrl::Torznab {
-                        url: results_url.join("torznab").unwrap(),
-                        api_key: Some(jackett_api_key.to_owned()),
-                    },
-                    FeedUrl::Potato {
-                        url: results_url.join("potato").unwrap(),
-                        api_key: Some(jackett_api_key.to_owned()),
-                    },
-                    FeedUrl::RSS({
-                        let mut rss_url = url.join("rss").unwrap();
-                        rss_url
-                            .query_pairs_mut()
-                            .append_pair("api_key", &jackett_api_key);
-                        rss_url
-                    }),
-                ],
-                privacy: ind.privacy,
-                source: SourceIndexer::Jackett(ind),
-            }
-        }));
-
-        println!("{:?}", indexers);
+        let jackett = jackett::new(url).await?;
+        println!("{:?}", jackett.fetch_indexers().await?);
     }
 
     println!("{:?}", opts);
