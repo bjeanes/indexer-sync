@@ -21,19 +21,46 @@ pub struct Jackett {
     client: reqwest::Client,
 }
 
-pub async fn new(url: Url) -> Result<Jackett, Box<dyn std::error::Error>> {
-    let url = url.join("/api/v2.0/")?;
-
+// Jackett does not have an "official" API. The endpoints we need to hit to
+// get the list of indexers and the API key use session authentication. So,
+// we hit the homepage once to fill the cookie store with the requisite
+// cookie.
+async fn auth(url: Url) -> Result<(Url, reqwest::Client), Box<dyn std::error::Error>> {
+    let (url, pw) = crate::util::extract_single_auth_value(url);
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .gzip(true)
         .build()?;
 
-    // Jackett does not have an "official" API. The endpoints we need to hit to
-    // get the list of indexers and the API key use session authentication. So,
-    // we hit the homepage once to fill the cookie store with the requisite
-    // cookie.
-    let _ = client.get(url.clone()).send().await?;
+    let dashboard = url.join("/UI/Dashboard")?;
+    let err = Err(
+        Box::new(crate::Error("Jackett password incorrect".to_owned()))
+            as Box<dyn std::error::Error>,
+    );
+
+    let initial_request = client.get(dashboard.clone()).send().await?;
+
+    if initial_request.url().path() != dashboard.path() {
+        if let Some(pw) = pw {
+            let login_request = client
+                .post(dashboard.clone())
+                .form(&[("password", pw)])
+                .send()
+                .await?;
+            if login_request.url().path() != dashboard.path() {
+                return err;
+            }
+        } else {
+            return err;
+        }
+    }
+
+    Ok((url, client))
+}
+
+pub async fn new(url: Url) -> Result<Jackett, Box<dyn std::error::Error>> {
+    let (url, client) = auth(url).await?;
+    let url = url.join("/api/v2.0/")?;
 
     // Fetch Jackett configuration as JSON
     let config: Value = client

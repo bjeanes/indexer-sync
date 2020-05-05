@@ -12,3 +12,17 @@ pub fn is_http_url(url: &str) -> Result<(), String> {
         },
     }
 }
+
+pub fn extract_single_auth_value(url: Url) -> (Url, Option<String>) {
+    match (url.username(), url.password()) {
+        ("", None) => (url, None),
+        (_, Some(pw)) | (pw, _) => {
+            let mut url = url.clone();
+            url.set_username("")
+                .expect("This shouldn't fail in this use case");
+            url.set_password(None)
+                .expect("This shouldn't fail in this use case");
+            (url, Some(pw.to_owned()))
+        }
+    }
+}

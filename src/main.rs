@@ -2,8 +2,11 @@ use clap::{crate_authors, crate_version, ArgGroup, Clap};
 use serde::Deserialize;
 use url::Url;
 
+mod error;
 mod jackett;
 mod util;
+
+pub use error::*;
 
 use util::is_http_url;
 
@@ -12,14 +15,17 @@ use util::is_http_url;
 #[clap(version = crate_version!(), author = crate_authors!(), group = ArgGroup::with_name("src").multiple(true).required(true), group = ArgGroup::with_name("dst").multiple(true).required(true))]
 struct Opts {
     /// [src] URL to Jackett instance from where indexers should be sourced
+    /// Basic Auth credentials will be extracted and used as admin password.
     #[clap(long, validator = is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
     jackett: Option<Url>,
 
-    /// [dst] URL to Sonarr instance where indexers should be updated
+    /// [dst] URL to Sonarr instance where indexers should be updated. Encoded
+    /// Basic Auth credentials will be extracted and used as the API token.
     #[clap(long, validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
     sonarr: Option<Url>,
 
-    /// [dst] URL to Radarr instance where indexers should be updated
+    /// [dst] URL to Radarr instance where indexers should be updated. Encoded
+    /// Basic Auth credentials will be extracted and used as the API token.
     #[clap(long, validator = is_http_url, env = "SYNC_RADARR_URL", group = "dst")]
     radarr: Option<Url>,
     //
