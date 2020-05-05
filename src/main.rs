@@ -58,9 +58,9 @@ struct Opts {
     // once_off: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-enum JacketIndexerType {
+enum IndexerPrivacy {
     Public,
     Private,
     SemiPrivate,
@@ -72,12 +72,30 @@ struct JackettIndexer {
     name: String,
 
     #[serde(rename = "type")]
-    kind: JacketIndexerType,
+    privacy: IndexerPrivacy,
 }
 
-// just newtype for now but will eventually be normalized across providers
 #[derive(Debug)]
-struct Indexer(JackettIndexer);
+enum SourceIndexer {
+    Jackett(JackettIndexer),
+}
+
+#[derive(Debug)]
+enum FeedUrl {
+    Torznab { url: Url, api_key: Option<String> },
+    Potato { url: Url, api_key: Option<String> },
+    RSS(Url),
+}
+
+#[derive(Debug)]
+struct Indexer {
+    source: SourceIndexer,
+    name: String,
+    // TODO: is there a way to model this to only allow construction of an
+    // Indexer struct that has one or more URLs?
+    urls: Vec<FeedUrl>,
+    privacy: IndexerPrivacy,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -91,11 +109,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut indexers: Vec<Indexer> = vec![];
 
     if let Some(url) = opts.jackett.clone() {
+        let url = url.join("/api/v2.0/").unwrap();
+
         // TODO: handle when auth is required
         // Fill cookie store
         let _ = client.get(url.clone()).send().await?;
         let server_config: Value = client
-            .get(url.clone().join("/api/v2.0/server/config").unwrap())
+            .get(url.clone().join("server/config").unwrap())
             .send()
             .await?
             .json()
@@ -108,17 +128,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:?}", jackett_api_key);
 
         let jacket_indexers: Vec<JackettIndexer> = client
-            .get(
-                url.clone()
-                    .join("/api/v2.0/indexers?configured=true")
-                    .unwrap(),
-            )
+            .get(url.clone().join("indexers?configured=true").unwrap())
             .send()
             .await?
             .json()
             .await?;
 
-        indexers.extend(jacket_indexers.into_iter().map(|ind| Indexer(ind)));
+        indexers.extend(jacket_indexers.into_iter().map(|ind| {
+            let results_url = url
+                .join(&format!("indexers/{}/results/torznab", &ind.id))
+                .unwrap();
+            Indexer {
+                name: format!("{} [jackett:{}]", &ind.name, &ind.id),
+                urls: vec![
+                    FeedUrl::Torznab {
+                        url: results_url.join("torznab").unwrap(),
+                        api_key: Some(jackett_api_key.to_owned()),
+                    },
+                    FeedUrl::Potato {
+                        url: results_url.join("potato").unwrap(),
+                        api_key: Some(jackett_api_key.to_owned()),
+                    },
+                    FeedUrl::RSS({
+                        let mut rss_url = url.join("rss").unwrap();
+                        rss_url
+                            .query_pairs_mut()
+                            .append_pair("api_key", &jackett_api_key);
+                        rss_url
+                    }),
+                ],
+                privacy: ind.privacy,
+                source: SourceIndexer::Jackett(ind),
+            }
+        }));
 
         println!("{:?}", indexers);
     }
