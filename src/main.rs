@@ -1,6 +1,7 @@
 use clap::{crate_authors, crate_version, ArgGroup, Clap};
 use reqwest::Client;
 use serde::Deserialize;
+use serde_json::Value;
 use url::Url;
 
 fn is_http_url(url: &str) -> Result<(), String> {
@@ -69,18 +70,14 @@ enum JacketIndexerType {
 struct JackettIndexer {
     id: String,
     name: String,
-    // description: String,
-    configured: bool,
-
-    #[serde(rename = "site_link")]
-    primary_site_link: String,
-
-    #[serde(rename = "alternativesitelinks")]
-    site_links: Vec<String>,
 
     #[serde(rename = "type")]
-    _type: JacketIndexerType,
+    kind: JacketIndexerType,
 }
+
+// just newtype for now but will eventually be normalized across providers
+#[derive(Debug)]
+struct Indexer(JackettIndexer);
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -91,20 +88,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()
         .unwrap();
 
-    if let Some(jackett) = opts.jackett.clone() {
+    let mut indexers: Vec<Indexer> = vec![];
+
+    if let Some(url) = opts.jackett.clone() {
         // TODO: handle when auth is required
         // Fill cookie store
-        let _ = client.get(jackett.clone()).send().await?;
-        let res = client
+        let _ = client.get(url.clone()).send().await?;
+        let server_config: Value = client
+            .get(url.clone().join("/api/v2.0/server/config").unwrap())
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        let jackett_api_key = server_config["api_key"]
+            .as_str()
+            .expect("API Key for Jackett could not be found.");
+
+        println!("{:?}", jackett_api_key);
+
+        let jacket_indexers: Vec<JackettIndexer> = client
             .get(
-                jackett
-                    .clone()
+                url.clone()
                     .join("/api/v2.0/indexers?configured=true")
                     .unwrap(),
             )
             .send()
+            .await?
+            .json()
             .await?;
-        println!("{:?}", res.json::<Vec<JackettIndexer>>().await?);
+
+        indexers.extend(jacket_indexers.into_iter().map(|ind| Indexer(ind)));
+
+        println!("{:?}", indexers);
     }
 
     println!("{:?}", opts);
