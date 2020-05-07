@@ -4,9 +4,12 @@ use url::Url;
 
 mod error;
 mod jackett;
+mod sonarr;
 mod util;
+mod znab;
 
 pub use error::*;
+pub use znab::*;
 
 use util::is_http_url;
 
@@ -57,7 +60,7 @@ struct Opts {
 
 #[derive(Debug, Deserialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-enum IndexerPrivacy {
+pub enum IndexerPrivacy {
     Public,
     Private,
     SemiPrivate,
@@ -68,20 +71,49 @@ enum SourceIndexer {
     Jackett(jackett::Indexer),
 }
 
+impl SourceIndexer {
+    pub fn name_id(&self) -> String {
+        match self {
+            Self::Jackett(ind) => format!("jackett:{}", &ind.id),
+        }
+    }
+}
+
 #[derive(Debug)]
-enum FeedUrl {
-    Torznab { url: Url, api_key: Option<String> },
-    Potato { url: Url, api_key: Option<String> },
-    RSS(Url),
+struct Torznab {
+    api_key: Option<String>,
+    url: Url,
+    capabilities: Vec<Capability>,
+}
+#[derive(Debug)]
+struct Newznab {
+    api_key: Option<String>,
+    url: Url,
+    capabilities: Vec<Capability>,
+}
+
+#[derive(Debug)]
+struct Potato {
+    api_key: Option<String>,
+    url: Url,
+}
+
+#[derive(Debug)]
+struct RSS(Url);
+
+#[derive(Debug)]
+struct FeedUrls {
+    potato: Option<Potato>,
+    rss: Option<RSS>,
+    torznab: Option<Torznab>,
+    newznab: Option<Newznab>,
 }
 
 #[derive(Debug)]
 pub struct Indexer {
     source: SourceIndexer,
     name: String,
-    // TODO: is there a way to model this to only allow construction of an
-    // Indexer struct that has one or more URLs?
-    urls: Vec<FeedUrl>,
+    urls: FeedUrls,
     privacy: IndexerPrivacy,
 }
 
@@ -89,12 +121,23 @@ pub struct Indexer {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts: Opts = Opts::parse();
 
+    let mut indexers = vec![];
+    let mut updates = vec![];
+    let sonarr: sonarr::Sonarr;
+
     if let Some(url) = opts.jackett.clone() {
         let jackett = jackett::new(url).await?;
-        println!("{:?}", jackett.fetch_indexers().await?);
+        indexers.extend(jackett.fetch_indexers().await?);
     }
 
-    println!("{:?}", opts);
+    if let Some(url) = opts.sonarr.clone() {
+        sonarr = sonarr::new(url)?;
+        updates.push(sonarr.update_indexers(&indexers));
+    }
+
+    for future in updates {
+        future.await?;
+    }
 
     Ok(())
 }

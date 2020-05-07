@@ -1,0 +1,807 @@
+[
+    {
+        "enableRss": true,
+        "enableAutomaticSearch": true,
+        "enableInteractiveSearch": true,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "usenet",
+        "name": "altHUB",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "https://api.althub.co.za/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5030,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Newznab",
+        "implementation": "Newznab",
+        "configContract": "NewznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#newznab",
+        "tags": [],
+        "id": 1
+    },
+    {
+        "enableRss": true,
+        "enableAutomaticSearch": true,
+        "enableInteractiveSearch": true,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "usenet",
+        "name": "DrunkenSlug",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "https://api.drunkenslug.com",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5030,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Newznab",
+        "implementation": "Newznab",
+        "configContract": "NewznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#newznab",
+        "tags": [],
+        "id": 18
+    },
+    {
+        "enableRss": false,
+        "enableAutomaticSearch": false,
+        "enableInteractiveSearch": true,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "torrent",
+        "name": "Jackett - All",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "http://localhost:9117/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api/v2.0/indexers/all/results/torznab",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    100008,
+                    100208,
+                    100205,
+                    5000,
+                    5030,
+                    5040,
+                    5050,
+                    100049,
+                    100041,
+                    100018,
+                    100018,
+                    100077,
+                    100005,
+                    100050,
+                    100007,
+                    100074,
+                    100006,
+                    100005,
+                    100041,
+                    100071,
+                    100075
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [
+                    5070
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 6,
+                "name": "minimumSeeders",
+                "label": "Minimum Seeders",
+                "helpText": "Minimum number of seeders required.",
+                "value": 1,
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 7,
+                "name": "seedCriteria.seedRatio",
+                "label": "Seed Ratio",
+                "helpText": "The ratio a torrent should reach before stopping, empty is download client's default",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 8,
+                "name": "seedCriteria.seedTime",
+                "label": "Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 9,
+                "name": "seedCriteria.seasonPackSeedTime",
+                "label": "Season-Pack Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "type": "number",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Torznab",
+        "implementation": "Torznab",
+        "configContract": "TorznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#torznab",
+        "tags": [],
+        "id": 17
+    },
+    {
+        "enableRss": true,
+        "enableAutomaticSearch": true,
+        "enableInteractiveSearch": true,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "torrent",
+        "name": "Jackett - RarBG",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "http://localhost:9117/api/v2.0/indexers/rarbg/results/torznab/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5030,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 6,
+                "name": "minimumSeeders",
+                "label": "Minimum Seeders",
+                "helpText": "Minimum number of seeders required.",
+                "value": 1,
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 7,
+                "name": "seedCriteria.seedRatio",
+                "label": "Seed Ratio",
+                "helpText": "The ratio a torrent should reach before stopping, empty is download client's default",
+                "value": 5.0,
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 8,
+                "name": "seedCriteria.seedTime",
+                "label": "Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "value": 10080,
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 9,
+                "name": "seedCriteria.seasonPackSeedTime",
+                "label": "Season-Pack Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "value": 43830,
+                "type": "number",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Torznab",
+        "implementation": "Torznab",
+        "configContract": "TorznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#torznab",
+        "tags": [],
+        "id": 14
+    },
+    {
+        "enableRss": true,
+        "enableAutomaticSearch": true,
+        "enableInteractiveSearch": true,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "torrent",
+        "name": "Jackett - ThePirateBay",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "http://localhost:9117/api/v2.0/indexers/thepiratebay/results/torznab/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    100208,
+                    100205,
+                    5000,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 6,
+                "name": "minimumSeeders",
+                "label": "Minimum Seeders",
+                "helpText": "Minimum number of seeders required.",
+                "value": 1,
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 7,
+                "name": "seedCriteria.seedRatio",
+                "label": "Seed Ratio",
+                "helpText": "The ratio a torrent should reach before stopping, empty is download client's default",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 8,
+                "name": "seedCriteria.seedTime",
+                "label": "Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 9,
+                "name": "seedCriteria.seasonPackSeedTime",
+                "label": "Season-Pack Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "type": "number",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Torznab",
+        "implementation": "Torznab",
+        "configContract": "TorznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#torznab",
+        "tags": [],
+        "id": 15
+    },
+    {
+        "enableRss": false,
+        "enableAutomaticSearch": false,
+        "enableInteractiveSearch": false,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "torrent",
+        "name": "LimeTorrents [jackett:limetorrents]",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "http://localhost:9117/api/v2.0/indexers/limetorrents/results/torznab/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5000
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [
+                    5070
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 6,
+                "name": "minimumSeeders",
+                "label": "Minimum Seeders",
+                "helpText": "Minimum number of seeders required.",
+                "value": 1,
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 7,
+                "name": "seedCriteria.seedRatio",
+                "label": "Seed Ratio",
+                "helpText": "The ratio a torrent should reach before stopping, empty is download client's default",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 8,
+                "name": "seedCriteria.seedTime",
+                "label": "Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "type": "number",
+                "advanced": true
+            },
+            {
+                "order": 9,
+                "name": "seedCriteria.seasonPackSeedTime",
+                "label": "Season-Pack Seed Time",
+                "unit": "minutes",
+                "helpText": "The time a torrent should be seeded before stopping, empty is download client's default",
+                "type": "number",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Torznab",
+        "implementation": "Torznab",
+        "configContract": "TorznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#torznab",
+        "tags": [],
+        "id": 16
+    },
+    {
+        "enableRss": false,
+        "enableAutomaticSearch": false,
+        "enableInteractiveSearch": false,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "usenet",
+        "name": "nzbwolf",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "https://nzbwolf.com/api",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5030,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Newznab",
+        "implementation": "Newznab",
+        "configContract": "NewznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#newznab",
+        "tags": [],
+        "id": 19
+    },
+    {
+        "enableRss": false,
+        "enableAutomaticSearch": true,
+        "enableInteractiveSearch": true,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "usenet",
+        "name": "SickBeard Index",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "http://lolo.sickbeard.com/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5030,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Newznab",
+        "implementation": "Newznab",
+        "configContract": "NewznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#newznab",
+        "tags": [],
+        "id": 3
+    },
+    {
+        "enableRss": false,
+        "enableAutomaticSearch": false,
+        "enableInteractiveSearch": false,
+        "supportsRss": true,
+        "supportsSearch": true,
+        "protocol": "usenet",
+        "name": "Usenet Crawler",
+        "fields": [
+            {
+                "order": 0,
+                "name": "baseUrl",
+                "label": "URL",
+                "value": "http://www.usenet-crawler.com/",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 1,
+                "name": "apiPath",
+                "label": "API Path",
+                "helpText": "Path to the api, usually /api",
+                "value": "/api",
+                "type": "textbox",
+                "advanced": true
+            },
+            {
+                "order": 2,
+                "name": "apiKey",
+                "label": "API Key",
+                "value": "redacted",
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 3,
+                "name": "categories",
+                "label": "Categories",
+                "helpText": "Comma Separated list, leave blank to disable standard/daily shows",
+                "value": [
+                    5030,
+                    5040
+                ],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 4,
+                "name": "animeCategories",
+                "label": "Anime Categories",
+                "helpText": "Comma Separated list, leave blank to disable anime",
+                "value": [],
+                "type": "textbox",
+                "advanced": false
+            },
+            {
+                "order": 5,
+                "name": "additionalParameters",
+                "label": "Additional Parameters",
+                "helpText": "Additional Newznab parameters",
+                "type": "textbox",
+                "advanced": true
+            }
+        ],
+        "implementationName": "Newznab",
+        "implementation": "Newznab",
+        "configContract": "NewznabSettings",
+        "infoLink": "https://github.com/Sonarr/Sonarr/wiki/Supported-Indexers#newznab",
+        "tags": [],
+        "id": 5
+    }
+]

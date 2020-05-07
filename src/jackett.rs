@@ -2,17 +2,24 @@ use serde::Deserialize;
 use serde_json::Value;
 use url::Url;
 
-use crate::FeedUrl;
+use crate::FeedUrls;
 use crate::IndexerPrivacy;
 use crate::SourceIndexer;
+use crate::{Potato, Torznab, RSS};
 
 #[derive(Debug, Deserialize)]
 pub struct Indexer {
-    id: String,
-    name: String,
+    pub id: String,
+    pub name: String,
+
+    #[serde(rename = "potatoenabled")]
+    pub potato_enabled: bool,
 
     #[serde(rename = "type")]
-    privacy: IndexerPrivacy,
+    pub privacy: IndexerPrivacy,
+
+    #[serde(rename = "caps")]
+    pub capabilities: Vec<crate::Capability>,
 }
 
 pub struct Jackett {
@@ -98,24 +105,30 @@ impl Jackett {
                     .unwrap();
 
                 crate::Indexer {
-                    name: format!("{} [jackett:{}]", &ind.name, &ind.id),
-                    urls: vec![
-                        FeedUrl::Torznab {
+                    name: ind.name.clone(),
+                    urls: FeedUrls {
+                        newznab: None,
+                        torznab: Some(Torznab {
                             url: results_url.join("torznab").unwrap(),
                             api_key: Some(self.feed_api_key.to_owned()),
+                            capabilities: ind.capabilities.clone(),
+                        }),
+                        potato: if ind.potato_enabled {
+                            Some(Potato {
+                                url: results_url.join("potato").unwrap(),
+                                api_key: Some(self.feed_api_key.to_owned()),
+                            })
+                        } else {
+                            None
                         },
-                        FeedUrl::Potato {
-                            url: results_url.join("potato").unwrap(),
-                            api_key: Some(self.feed_api_key.to_owned()),
-                        },
-                        FeedUrl::RSS({
+                        rss: Some(RSS({
                             let mut rss_url = self.url.join("rss").unwrap();
                             rss_url
                                 .query_pairs_mut()
                                 .append_pair("api_key", &self.feed_api_key);
                             rss_url
-                        }),
-                    ],
+                        })),
+                    },
                     privacy: ind.privacy,
                     source: SourceIndexer::Jackett(ind),
                 }
