@@ -40,7 +40,10 @@ impl Ids<usize> for Vec<Capability> {
 impl<'a> Capabilities<'a> for Vec<Capability> {
     fn series(&'a self) -> Vec<Capability> {
         self.iter()
-            .filter(|cap| cap.name.to_ascii_lowercase().contains("tv"))
+            .filter(|cap| {
+                let name = cap.name.to_ascii_lowercase();
+                name.contains("tv") || name.contains("series") || name.contains("episodes")
+            })
             .filter(|cap| !cap.name.to_ascii_lowercase().contains("anime"))
             .map(|cap| cap.to_owned())
             .collect()
@@ -55,7 +58,10 @@ impl<'a> Capabilities<'a> for Vec<Capability> {
 
     fn movies(&'a self) -> Vec<Capability> {
         self.iter()
-            .filter(|cap| cap.name.to_ascii_lowercase().contains("movie"))
+            .filter(|cap| {
+                let name = cap.name.to_ascii_lowercase();
+                name.contains("movie") || name.contains("movs")
+            })
             .filter(|cap| !cap.name.to_ascii_lowercase().contains("anime"))
             .map(|cap| cap.to_owned())
             .collect()
