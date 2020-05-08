@@ -326,20 +326,39 @@ impl SonarrIndexer {
             (reqwest::Method::POST, "/api/v3/indexer".to_owned())
         };
 
-        let response = target
+        let response: reqwest::Response = target
             .client
-            .request(method, target.url.join(&path)?)
+            .request(method.clone(), target.url.join(&path)?)
             .json(&self)
             .send()
             .await?;
 
-        println!("{} for saving {}", response.status(), &self.name);
+        print!("{} {} ({})", &method, &path, &self.name);
+        println!(" - {}", response.status());
 
-        let response = response.error_for_status()?;
-
-        *self = response.json().await?;
-
-        Ok(())
+        match response.status() {
+            status if status.is_success() => {
+                *self = response.json().await?;
+                if status == reqwest::StatusCode::CREATED {
+                    println!("    -> {}", &self.id.unwrap());
+                }
+                return Ok(());
+            }
+            status if status.is_client_error() => {
+                println!(
+                    "    -> {}",
+                    response.json::<serde_json::Value>().await?[0]["errorMessage"]
+                        .as_str()
+                        .unwrap()
+                );
+                return Err(Box::new(crate::Error("Save rejected".to_owned()))
+                    as Box<dyn std::error::Error>);
+            }
+            _ => {
+                response.error_for_status()?;
+                Ok(()) //                  ^.map(|_| ())   doesn't work here and I don't know...
+            }
+        }
     }
 }
 
