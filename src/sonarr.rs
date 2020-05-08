@@ -35,9 +35,9 @@ enum Protocol {
 enum ConfiguredProtocol {
     Torrent {
         minimum_seeders: usize,
-        seed_ratio: f32,
-        seed_time: usize,             // minutes
-        season_pack_seed_time: usize, // minutes
+        seed_ratio: Option<f32>,
+        seed_time: Option<usize>,             // minutes
+        season_pack_seed_time: Option<usize>, // minutes
     },
     Usenet,
 }
@@ -151,9 +151,30 @@ impl std::convert::From<SonarrIndexerSchema> for SonarrIndexer {
                         _ => None,
                     })
                     .expect("seedCriteria.seedRatio field should always be present for torrent indexers"),
-                minimum_seeders: 1,
-                seed_time: 300,
-                season_pack_seed_time: 3000,
+                minimum_seeders: from
+                    .fields
+                    .iter()
+                    .find_map(|f| match f {
+                        Field::MinimumSeeders { value } => Some(value.to_owned()),
+                        _ => None,
+                    })
+                    .expect("minimumSeeders field should always be present for torrent indexers"),
+                seed_time: from
+                    .fields
+                    .iter()
+                    .find_map(|f| match f {
+                        Field::SeedTime { value } => Some(value.to_owned()),
+                        _ => None,
+                    })
+                    .expect("seedCriteria.seedTime field should always be present for torrent indexers"),
+                season_pack_seed_time: from
+                    .fields
+                    .iter()
+                    .find_map(|f| match f {
+                        Field::SeasonPackSeedTime { value } => Some(value.to_owned()),
+                        _ => None,
+                    })
+                    .expect("seedCriteria.seasonPackSeedTime field should always be present for torrent indexers"),
             },
         };
 
@@ -263,24 +284,32 @@ enum Field {
         #[serde(default)]
         value: usize,
     },
+
+    /// Additional Torznab/Newznab parameters (appended to request URL by Sonarr)
     AdditionalParameters {
         #[serde(default)]
         value: String,
     },
+
+    /// The ratio a torrent should reach before stopping, empty is download client's default
     #[serde(rename = "seedCriteria.seedRatio")]
     SeedRatio {
         #[serde(default)]
-        value: f32,
+        value: Option<f32>,
     },
+
+    /// The time a torrent should be seeded before stopping, empty is download client's default
     #[serde(rename = "seedCriteria.seedTime")]
     SeedTime {
         #[serde(default)]
-        value: usize,
+        value: Option<usize>,
     },
+
+    /// The time a torrent should be seeded before stopping, empty is download client's default
     #[serde(rename = "seedCriteria.seasonPackSeedTime")]
     SeasonPackSeedTime {
         #[serde(default)]
-        value: usize,
+        value: Option<usize>,
     },
     #[serde(other)]
     Other,
