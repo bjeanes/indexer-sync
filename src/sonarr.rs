@@ -466,7 +466,7 @@ impl Sonarr {
                 }
             }
 
-            sonarr_indexer.name = format!("{} - {}", indexer.name, indexer.source.name_id());
+            sonarr_indexer.name = format!("{} {{{}}}", indexer.name, indexer.source.name_id());
             // sonarr_indexer.save(&self).await?;
             sonarr_indexer.save(&self).await;
         }
