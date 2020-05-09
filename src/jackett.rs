@@ -80,8 +80,8 @@ pub async fn new(url: Url) -> Result<Jackett, Box<dyn std::error::Error>> {
     let api_key = config["api_key"].as_str().ok_or("Unable to find API key")?;
 
     Ok(Jackett {
-        url: url,
-        client: client,
+        url,
+        client,
         feed_api_key: api_key.to_owned(),
     })
 }

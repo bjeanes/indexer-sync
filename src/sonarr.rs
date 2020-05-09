@@ -181,13 +181,13 @@ impl std::convert::From<SonarrIndexerSchema> for SonarrIndexer {
         SonarrIndexer {
             id: from.id,
             name: from.name,
-            api_key: api_key,
-            anime_categories: anime_categories,
-            categories: categories,
+            api_key,
+            anime_categories,
+            categories,
             url: Url::parse(&base_url).ok().unwrap_or_else(default_url),
             implementation: from.implementation,
             config_contract: from.config_contract,
-            protocol: protocol,
+            protocol,
         }
     }
 }
@@ -247,8 +247,8 @@ impl std::convert::From<SonarrIndexer> for SonarrIndexerSchema {
             supports_rss: true,
             supports_search: true,
             // tags: vec![],
-            fields: fields,
-            protocol: protocol,
+            fields,
+            protocol,
         }
     }
 }
