@@ -342,7 +342,7 @@ impl SonarrIndexer {
                 if status == reqwest::StatusCode::CREATED {
                     println!("    -> {}", &self.id.unwrap());
                 }
-                return Ok(());
+                Ok(())
             }
             status if status.is_client_error() => {
                 println!(
@@ -351,13 +351,10 @@ impl SonarrIndexer {
                         .as_str()
                         .unwrap()
                 );
-                return Err(Box::new(crate::Error("Save rejected".to_owned()))
-                    as Box<dyn std::error::Error>);
+                Err(Box::new(crate::Error("Save rejected".to_owned()))
+                    as Box<dyn std::error::Error>)
             }
-            _ => {
-                response.error_for_status()?;
-                Ok(()) //                  ^.map(|_| ())   doesn't work here and I don't know...
-            }
+            _ => Ok(response.error_for_status().map(|_| ())?),
         }
     }
 }
