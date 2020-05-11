@@ -405,6 +405,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "indexer-sync"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "lazy_static",
+ "paste",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "url 2.1.1",
+]
+
+[[package]]
 name = "indexmap"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1148,20 +1162,6 @@ name = "tower-service"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e987b6bf443f4b5b3b6f38704195592cca41c5bb7aedd3c3693c7081f8289860"
-
-[[package]]
-name = "tracker-sync"
-version = "0.1.0"
-dependencies = [
- "clap",
- "lazy_static",
- "paste",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "url 2.1.1",
-]
 
 [[package]]
 name = "try-lock"
