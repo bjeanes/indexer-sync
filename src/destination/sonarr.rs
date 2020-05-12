@@ -478,7 +478,7 @@ mod tests {
 
     #[test]
     fn test_deserialize_sonarr_schemas() -> serde_json::Result<()> {
-        let schema_blob = include_str!("../test/sonarr-schemas.json");
+        let schema_blob = include_str!("../../test/sonarr-schemas.json");
         let schemas = serde_json::from_str::<Vec<SonarrIndexer>>(schema_blob)?;
         assert_eq!(schemas[0].id, None);
         Ok(())
@@ -486,7 +486,7 @@ mod tests {
 
     #[test]
     fn test_deserialize_sonarr_existing_indexer() -> serde_json::Result<()> {
-        let schema_blob = include_str!("../test/sonarr-indexers.json");
+        let schema_blob = include_str!("../../test/sonarr-indexers.json");
         let indexers = serde_json::from_str::<Vec<SonarrIndexer>>(schema_blob)?;
         assert_eq!(indexers[0].id, Some(1));
         Ok(())

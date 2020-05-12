@@ -2,13 +2,15 @@ use clap::{crate_authors, crate_version, ArgGroup, Clap};
 use serde::Deserialize;
 use url::Url;
 
+mod destination;
 mod error;
-mod jackett;
-mod sonarr;
+mod source;
 mod util;
 mod znab;
 
+use destination::sonarr;
 pub use error::*;
+use source::jackett;
 pub use znab::*;
 
 use util::is_http_url;
