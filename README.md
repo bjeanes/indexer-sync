@@ -59,6 +59,25 @@ there are bound to be ways in which I don't yet know it's rough.
 
    In particular, allow setting it separately for public vs private trackers
 * [ ] Long-running mode where it polls and updates definitions on a defined interval
+* [ ] Optional arguments to filter indexer names to sync
+
+   This would be useful if you wanted to set up separate regular syncs but
+   with different indexers to different media managers. For instance:
+
+   ```sh-session
+   $ indexer-sync --jackett $JACKET_URL --sonarr $SONARR_URL idope tpb rarbg
+   $ indexer-sync --jackett $JACKET_URL --radarr $RADARR_URL yts tpb rarbg
+   ```
+* [ ] Explicit specification of category/capability IDs for each media type.
+
+   For example:
+
+   ```sh-session
+   $ indexer-sync --jackett $JACKET_URL --sonarr $SONARR_URL --tv-categories=5000,5030,5040
+   ```
+
+   It would filter the categories each indexer supports to the ones from that
+   list when passed to the media manager.
 * [ ] Docker image and `docker-compose.yml` example so it can be set-and-forget
 * [ ] Pull indexer definitions from NZBHydra2
 * [ ] Add/update indexers in Lidarr
