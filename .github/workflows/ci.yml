@@ -15,13 +15,15 @@ jobs:
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v1.1.0
 
+      - run: git tag -f unstable ${{ github.sha }}
+      - run: git push -f --tags
+
+      # Upserts the pre-release
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           allow_override: true
           prerelease: true
-          gzip: true
           tag: unstable
-          commitish: ${{ github.sha }}
           name: "Unstable - built from current master"
           body: ${{ steps.changelog_reader.outputs.log_entry }}
