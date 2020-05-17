@@ -34,9 +34,8 @@ jobs:
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-debug
+          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
             ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
             ${{ runner.os }}-cargo-build-target-
 
@@ -78,9 +77,8 @@ jobs:
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-debug
+          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
             ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
             ${{ runner.os }}-cargo-build-target-
 
@@ -96,19 +94,40 @@ jobs:
           command: clippy
           args: -- -D clippy::all
 
-  build_on_linux:
+  build:
     needs: test
-    name: Build release assets on Linux
-    runs-on: ubuntu-18.04
+    name: Build release assets
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # Linux
+          - { os: ubuntu-18.04, toolchain: stable, target: x86_64-unknown-linux-gnu, cross: false }
+          - { os: ubuntu-18.04, toolchain: stable, target: aarch64-unknown-linux-gnu, cross: true }
+          - { os: ubuntu-18.04, toolchain: stable, target: x86_64-unknown-linux-musl, cross: true }
+          - { os: ubuntu-18.04, toolchain: stable, target: arm-unknown-linux-gnueabi, cross: true }
+          - { os: ubuntu-18.04, toolchain: stable, target: armv7-unknown-linux-gnueabihf, cross: true }
+
+          # Macos
+          - { os: macos-10.15, toolchain: stable, target: x86_64-apple-darwin, cross: false }
+          - { os: macos-10.15, toolchain: stable, target: x86_64-apple-darwin, cross: false }
+
+          # Windows
+          - { os: windows-2019, toolchain: stable-x86_64-pc-windows-gnu, target: x86_64-pc-windows-gnu, cross: false }
+          - { os: windows-2019, toolchain: stable-x86_64-pc-windows-msvc, target: x86_64-pc-windows-msvc, cross: false }
+
     steps:
       - uses: actions/checkout@master
 
       - uses: actions-rs/toolchain@v1
         id: rust-toolchain
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.config.toolchain }}
+          target: ${{ matrix.config.target }}
           profile: minimal
           override: true
+          default: true
 
       - name: Cache cargo registry
         uses: actions/cache@v1
@@ -128,139 +147,56 @@ jobs:
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-release
+          key: ${{ matrix.config.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ matrix.config.target}}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ matrix.config.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ matrix.config.target}}-
+            ${{ matrix.config.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+            ${{ matrix.config.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ matrix.config.os }}-cargo-build-target-
             ${{ runner.os }}-cargo-build-target-
+
+      - name: Downgrade cross (for OpenSSL support)
+        uses: actions-rs/cargo@v1
+        if: ${{ matrix.config.cross }}
+        with:
+          command: install
+          args: --version 0.1.16 cross
 
       - name: Build release asset
         uses: actions-rs/cargo@v1
         with:
+          use-cross: ${{ matrix.config.cross }}
           command: build
-          args: --release
+          args: --release --target ${{ matrix.config.target }}
 
       - name: Package asset as gzip
-        run: tar c -C target/release indexer-sync | gzip --best > indexer-sync.tar.gz
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: indexer-sync-linux-x86_64.tar.gz
-          path: indexer-sync.tar.gz
-
-  build_on_macos:
-    needs: test
-    name: Build release assets on macOS
-    runs-on: macOS-10.15
-    steps:
-      - uses: actions/checkout@master
-
-      - uses: actions-rs/toolchain@v1
-        id: rust-toolchain
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-registry-
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-index-
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-release
-          restore-keys: |
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
-            ${{ runner.os }}-cargo-build-target-
-
-      - name: Build release asset
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
-
-      - name: Package asset as gzip
-        run: tar c -C target/release indexer-sync | gzip --best > indexer-sync.tar.gz
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: indexer-sync-macos-x86_64.tar.gz
-          path: indexer-sync.tar.gz
-
-  build_on_windows:
-    needs: test
-    name: Build release assets on Windows
-    runs-on: windows-2019
-    steps:
-      - uses: actions/checkout@master
-
-      - uses: actions-rs/toolchain@v1
-        id: rust-toolchain
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-registry-
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-index-
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-release
-          restore-keys: |
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
-            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
-            ${{ runner.os }}-cargo-build-target-
-
-      - name: Build release asset
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+        if: "!startsWith(matrix.config.os, 'windows')"
+        run: env GZIP=-9 tar zvcf indexer-sync.tar.gz -C ./target/${{ matrix.config.target }}/release indexer-sync
 
       - name: Package asset as zip
+        if: startsWith(matrix.config.os, 'windows')
         run: |
-          Compress-Archive -LiteralPath .\target\release\indexer-sync.exe -DestinationPath indexer-sync.zip
+          Compress-Archive -LiteralPath .\target\${{ matrix.config.target }}\release\indexer-sync.exe -DestinationPath indexer-sync.zip
 
-      - name: Upload artifact
+      - name: Upload gzipped artifact
+        if: "!startsWith(matrix.config.os, 'windows')"
         uses: actions/upload-artifact@v2
         with:
-          name: indexer-sync-windows-x86_64.zip
+          name: indexer-sync-${{ matrix.config.target }}.tar.gz
+          path: indexer-sync.tar.gz
+
+      - name: Upload zipped artifact
+        if: startsWith(matrix.config.os, 'windows')
+        uses: actions/upload-artifact@v2
+        with:
+          name: indexer-sync-${{ matrix.config.target }}.zip
           path: indexer-sync.zip
 
   # TODO: skip if ${{ github.sha }} can be `git describe`d as an exact version
   #       tag (we'll release that separately)
   prerelease:
     name: Create a pre-release
-    needs: [build_on_linux, build_on_macos, build_on_windows]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -274,7 +210,7 @@ jobs:
       - name: Set release version variable
         id: version
         run: |
-         echo ::set-output name=version::`git describe --long --always`
+          echo ::set-output name=version::`git describe --long --always --tags --exclude unstable`
 
       # This generates a space-sparated list of `$asset_name:assets/$file_name/$file_name`
       # strings by modifying the file_name to include the release version set
