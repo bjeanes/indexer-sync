@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Basic end-to-end sync of Torrent indexers from Jackett into Sonarr
+- Pre-built binaries for Linux
+- Pre-built binaries for macOS
 
 ### Fixed
 
