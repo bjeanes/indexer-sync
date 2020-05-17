@@ -9,14 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 </small>
 
-## [v0.1.0] - Unreleased
+## [v0.2.0] - Unreleased
 
 ### Added
-
-- Basic end-to-end sync of Torrent indexers from Jackett into Sonarr
-- Pre-built binaries for Linux
-- Pre-built binaries for macOS
-- Pre-built binaries for Windows
 
 ### Fixed
 
@@ -28,7 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known Issues
 
+## [v0.1.0] - 2020-05-18
+
+### Added
+
+- Basic end-to-end sync of Torrent indexers from Jackett into Sonarr
+- Pre-built binaries for Linux
+- Pre-built binaries for macOS
+- Pre-built binaries for Windows
+
+### Known Issues
+
 - Sometimes the syncer doesn't correctly identify an existing indexer in
   Sonarr and attempts to create a new one instead.
+- Code quality is poor. This first release should be considered a proof-of-concept.
 
-[Unreleased]: https://github.com/bjeanes/indexer-sync/tree/HEAD
+[v0.2.0]: https://github.com/bjeanes/indexer-sync/compare/v0.1.0..HEAD
+[v0.1.0]: https://github.com/bjeanes/indexer-sync/tree/v0.1.0

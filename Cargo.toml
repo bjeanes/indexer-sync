@@ -5,7 +5,6 @@ authors = ["Bo Jeanes <me@bjeanes.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 reqwest = { version = "0.10", features = ["json", "cookies", "gzip", "json"] }
 tokio = { version = "0.2", features = ["full"] }
