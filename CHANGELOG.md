@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pre-built binaries for Linux using musl
 - Pre-built binaries for other semi-common architectures
+- Docker build
 
 ### Fixed
 
