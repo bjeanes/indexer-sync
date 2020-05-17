@@ -9,6 +9,22 @@ this tool have a new indexer entry in Sonarr et al. Likewise, you should be
 able to rotate your API token in Jackett et al and have it update all the
 indexers defined in Sonarr et al.
 
+## Install
+
+You can download pre-built binaries and view release notes in GitHub releases.
+
+* [latest release](https://github.com/bjeanes/indexer-sync/releases/latest)
+* [`unstable` release](https://github.com/bjeanes/indexer-sync/releases/tag/unstable)
+  \- built from `master` when tests pass
+
+You can also pull [releases from DockerHub](https://hub.docker.com/repository/docker/bjeanes/indexer-sync):
+
+```sh-session
+$ docker pull bjeanes/indexer-sync:unstable # built from master when tests pass
+$ docker pull bjeanes/indexer-sync:latest   # built from latest tagged release
+$ docker pull bjeanes/indexer-sync:v0.1     # built from specified tagged release
+```
+
 ## Usage
 
 This is very early work-in-progress so the following is aspirational:
