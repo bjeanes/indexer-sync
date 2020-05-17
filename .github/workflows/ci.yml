@@ -202,11 +202,65 @@ jobs:
           name: indexer-sync-macos-x86_64.tar.gz
           path: indexer-sync.tar.gz
 
+  build_on_windows:
+    needs: test
+    name: Build release assets on Windows
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: actions-rs/toolchain@v1
+        id: rust-toolchain
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-release
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ runner.os }}-cargo-build-target-
+
+      - name: Build release asset
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Package asset as zip
+        run: |
+          Compress-Archive -LiteralPath .\target\release\indexer-sync.exe -DestinationPath indexer-sync.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: indexer-sync-windows-x86_64.zip
+          path: indexer-sync.zip
+
   # TODO: skip if ${{ github.sha }} can be `git describe`d as an exact version
   #       tag (we'll release that separately)
   prerelease:
     name: Create a pre-release
-    needs: [build_on_linux, build_on_macos]
+    needs: [build_on_linux, build_on_macos, build_on_windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
