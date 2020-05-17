@@ -20,11 +20,12 @@ jobs:
           command: build
           args: --release
 
-      - run: tar czvf indexer-sync-${{ env.GITHUB_REF }}-${{ env.GITHUB_SHA }}-linux-x86_64.tar.gz -C target/release indexer-sync
+      - name: gzip binary
+        run: tar czvf indexer-sync-${{ env.GITHUB_REF }}-${{ env.GITHUB_SHA }}-linux-x86_64.tar.gz -C target/release indexer-sync
 
       - name: Upload to release
         uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: tar czvf indexer-sync-${{ env.GITHUB_REF }}-${{ env.GITHUB_SHA }}-linux-x86_64.tar.gz application/gzip
+          args: indexer-sync-${{ env.GITHUB_REF }}-${{ env.GITHUB_SHA }}-linux-x86_64.tar.gz application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
