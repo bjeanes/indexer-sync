@@ -3,6 +3,8 @@ on:
     branches: [master]
 
 jobs:
+  # TODO: skip if ${{ github.sha }} can be `git describe`d as an exact version
+  #       tag (we'll release that separately)
   prerelease:
     name: Create a pre-release
     runs-on: ubuntu-latest
@@ -15,6 +17,14 @@ jobs:
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v1.1.0
 
+      # Explicitly delete the tag on the remote, so that the release goes back
+      # into draft mode. This will reset its publication timestamp when the
+      # later steps update it.
+      - run: git push --delete origin unstable
+
+      # Rewrite the tag to point to the current HEAD, otherwise we will create
+      # a release with up-to-date changelog, but pointing to the old SHA to
+      # which the tag previously pointed.
       - run: git tag -f unstable ${{ github.sha }}
       - run: git push -f --tags
 
