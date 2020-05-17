@@ -17,23 +17,32 @@ jobs:
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v1.1.0
 
-      # Explicitly delete the tag on the remote, so that the release goes back
-      # into draft mode. This will reset its publication timestamp when the
-      # later steps update it.
-      - run: git push --delete origin unstable
-
-      # Rewrite the tag to point to the current HEAD, otherwise we will create
-      # a release with up-to-date changelog, but pointing to the old SHA to
-      # which the tag previously pointed.
-      - run: git tag -f unstable ${{ github.sha }}
-      - run: git push -f --tags
+      # Deleting the release and tag to work around some downsides of the
+      # meeDamian/github-release approach:
+      #
+      # 1. Tag is left pointing to the original release
+      # 2. Release is updated but its timestamp will be the time of original release
+      #
+      # Simply deleting the tag (e.g. `git push --delete origin unstable`) will
+      # work from a public-facing standpoint, but it leaves behind a lot of
+      # draft releases for the releases which were associated with the tag at
+      # the time it was deleted.
+      - name: Delete `unstable` tag and associated GH Release
+        uses: dev-drprasad/delete-tag-and-release@v0.1.1
+        with:
+          delete_release: true
+          tag_name: unstable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Upserts the pre-release
-      - uses: meeDamian/github-release@2.0
+      - name: Create GH Release and `unstable` tag for current commit
+        uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           allow_override: true
           prerelease: true
           tag: unstable
+          commitish: ${{ github.sha }}
           name: "Unstable - built from current master"
           body: ${{ steps.changelog_reader.outputs.log_entry }}
