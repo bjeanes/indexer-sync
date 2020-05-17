@@ -406,7 +406,7 @@ dependencies = [
 
 [[package]]
 name = "indexer-sync"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "lazy_static",
