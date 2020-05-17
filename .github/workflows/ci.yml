@@ -4,14 +4,184 @@ on:
     branches: [master]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: actions-rs/toolchain@v1
+        id: rust-toolchain
+        with:
+          toolchain: stable
+          profile: default
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-debug
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ runner.os }}-cargo-build-target-
+
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --verbose
+
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: actions-rs/toolchain@v1
+        id: rust-toolchain
+        with:
+          toolchain: stable
+          profile: default
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ runner.os }}-cargo-registry-
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ runner.os }}-cargo-index-
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-debug
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ runner.os }}-cargo-build-target-
+
+      - name: Check rustfmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Check clippy warnings
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D clippy::all
+
+  build_on_linux:
+    needs: test
+    name: Build release assets on Linux
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: actions-rs/toolchain@v1
+        id: rust-toolchain
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}-release
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+            ${{ runner.os }}-cargo-build-target-${{ steps.rust-toolchain.outputs.rustc_hash }}-
+            ${{ runner.os }}-cargo-build-target-
+
+      - name: Build release asset
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Package asset as gzip
+        run: tar c -C target/release indexer-sync | gzip --best > indexer-sync.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: indexer-sync-linux-x86_64.tar.gz
+          path: indexer-sync.tar.gz
+
   # TODO: skip if ${{ github.sha }} can be `git describe`d as an exact version
   #       tag (we'll release that separately)
   prerelease:
     name: Create a pre-release
+    needs: [build_on_linux]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Download built assets from workflow artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: assets/
+
+      - name: Set release version variable
+        id: version
+        run: |
+         echo ::set-output name=version::`git describe --long --always`
+
+      # This generates a space-sparated list of `$asset_name:assets/$file_name/$file_name`
+      # strings by modifying the file_name to include the release version set
+      # above.
+      #
+      # The `actions/download-artifact` action puts each artifact in its own
+      # directory, even when it is a single file.
+      - name: Build list of artifacts
+        id: artifacts
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          files=$(ls -1 assets | perl -Wpe 's/^(indexer-sync)-(.*)$/$1-unstable-'$VERSION'-$2:assets\/$&\/*/g')
+          echo ::set-output name=files::`echo $files | xargs echo`
 
       # Deleting the release and tag to work around some downsides of the
       # meeDamian/github-release approach:
@@ -40,10 +210,12 @@ jobs:
       - name: Create GH Release and `unstable` tag for current commit
         uses: meeDamian/github-release@2.0
         with:
-          token: ${{ secrets.GH_RELEASE_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           allow_override: true
           prerelease: true
           tag: unstable
           commitish: ${{ github.sha }}
-          name: "Unstable - built from current master"
+          name: "Unstable (built from master)"
           body: ${{ steps.changelog_reader.outputs.log_entry }}
+          files: ${{ steps.artifacts.outputs.files }}
+          gzip: false
