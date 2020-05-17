@@ -8,14 +8,6 @@ jobs:
   prerelease:
     name: Create a pre-release
     runs-on: ubuntu-latest
-
-    # The tag deletion step is a hard failure in the action, but isn't actually
-    # super important in this context and we still want to create the release.
-    #
-    # NOTE: Once we are doing builds, we will want to short-circuit release
-    #       creation in that case.
-    continue-on-error: true
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
