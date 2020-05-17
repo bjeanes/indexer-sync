@@ -20,11 +20,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Extract latest changelog entry
-      - name: Get Changelog Entry
-        id: changelog_reader
-        uses: mindsers/changelog-reader-action@v1.1.0
-
       # Deleting the release and tag to work around some downsides of the
       # meeDamian/github-release approach:
       #
@@ -42,6 +37,11 @@ jobs:
           tag_name: unstable
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract latest changelog entry
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v1.1.0
 
       # Upserts the pre-release
       - name: Create GH Release and `unstable` tag for current commit
