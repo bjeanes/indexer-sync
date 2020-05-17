@@ -36,7 +36,7 @@ jobs:
       # draft releases for the releases which were associated with the tag at
       # the time it was deleted.
       - name: Delete `unstable` tag and associated GH Release
-        uses: bjeanes/delete-tag-and-release@fix-release-deletion
+        uses: bjeanes/delete-tag-and-release@master
         with:
           delete_release: true
           tag_name: unstable
