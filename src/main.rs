@@ -33,6 +33,12 @@ struct Opts {
     /// Basic Auth credentials will be extracted and used as the API token.
     #[clap(long, validator = is_http_url, env = "SYNC_RADARR_URL", group = "dst")]
     radarr: Option<Url>,
+
+    /// Provide indexers that you want to update. These values will be case-insensitively substring
+    /// matched against indexer/tracker names. Only those which match will be synced. If not
+    /// provided, all discovered indexers will be synced.
+    #[clap(name = "INDEXER")]
+    indexers_to_sync: Vec<String>,
     //
 
     // /// [dst] URL to Lidarr instance where indexers should be updated
@@ -57,7 +63,7 @@ struct Opts {
 
     // /// Run the sync once, then exit
     // #[clap(short, long)]
-    // once_off: bool,
+    // once_off: bool
 }
 
 #[derive(Debug, Deserialize, Clone, Copy)]
@@ -142,28 +148,65 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut updates = vec![];
     let sonarr: sonarr::Sonarr;
 
+    // FETCH
+
     if let Some(url) = opts.jackett.clone() {
         log::info!("Fetching indexers from Jackett");
         let jackett = jackett::new(url).await?;
         let jackett_indexers = jackett.fetch_indexers().await?;
-        log::debug!(
-            "Fetched: {:?}",
-            jackett_indexers
+        log::debug!("Fetched: {}", {
+            let mut i = jackett_indexers
                 .iter()
-                .map(|i| i.source.name_id())
-                .collect::<Vec<_>>()
-        );
+                .map(|i| i.name.as_ref())
+                .collect::<Vec<&str>>();
+            i.sort();
+            i.join(", ")
+        });
         indexers.extend(jackett_indexers);
     }
 
-    if let Some(url) = opts.sonarr.clone() {
-        log::info!("Updating indexers in Sonarr");
-        sonarr = sonarr::new(url)?;
-        updates.push(sonarr.update_indexers(&indexers));
+    // FILTER
+
+    if opts.indexers_to_sync.len() > 0 {
+        let filters: Vec<_> = opts
+            .indexers_to_sync
+            .iter()
+            .map(|f| f.to_lowercase())
+            .collect();
+
+        indexers = indexers
+            .into_iter()
+            .filter(|i| filters.iter().any(|f| i.name.to_lowercase().contains(f)))
+            .collect();
+
+        log::debug!(
+            "Filtered indexers to {}",
+            if indexers.is_empty() {
+                "empty list".to_owned()
+            } else {
+                indexers
+                    .iter()
+                    .map(|i| i.name.as_ref())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            }
+        );
     }
 
-    for future in updates {
-        future.await?;
+    // UPDATE
+
+    if indexers.is_empty() {
+        log::warn!("No indexers to sync");
+    } else {
+        if let Some(url) = opts.sonarr.clone() {
+            log::info!("Updating indexers in Sonarr");
+            sonarr = sonarr::new(url)?;
+            updates.push(sonarr.update_indexers(&indexers));
+        }
+
+        for future in updates {
+            future.await?;
+        }
     }
 
     Ok(())
