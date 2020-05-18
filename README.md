@@ -84,8 +84,8 @@ there are bound to be ways in which I don't yet know it's rough.
 * [ ] Allowing the specification of seed criteria
 
    In particular, allow setting it separately for public vs private trackers
-* [ ] Long-running mode where it polls and updates definitions on a defined interval
-* [ ] Optional arguments to filter indexer names to sync
+* [x] Long-running mode where it polls and updates definitions on a defined interval
+* [x] Optional arguments to filter indexer names to sync
 
    This would be useful if you wanted to set up separate regular syncs but
    with different indexers to different media managers. For instance:
