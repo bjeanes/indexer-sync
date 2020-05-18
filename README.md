@@ -31,27 +31,35 @@ This is very early work-in-progress so the following is aspirational:
 
 ``` sh-session
 $ indexer-sync --help
-indexer-sync 0.1.0
+indexer-sync 0.2.0
 Bo Jeanes <me@bjeanes.com>
 At least one [src] and at least one [dst] must be specified in order to sync
 
 USAGE:
-    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>|--radarr <radarr>>
+    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>|--radarr <radarr>|--interval <interval>> [INDEXER]...
+
+ARGS:
+    <INDEXER>...    Provide indexers that you want to update. These values will be case-insensitively substring
+                    matched against indexer/tracker names. Only those which match will be synced. If not provided,
+                    all discovered indexers will be synced
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-        --jackett <jackett>    [src] URL to Jackett instance from where indexers should be sourced. Basic Auth
-                               credentials will be extracted and used as admin password [env: SYNC_JACKETT_URL=]
-        --radarr <radarr>      [dst] URL to Radarr instance where indexers should be updated. Basic Auth
-                               credentials will be extracted and used as the API token [env: SYNC_RADARR_URL=]
-        --sonarr <sonarr>      [dst] URL to Sonarr instance where indexers should be updated. Basic Auth
+        --jackett <jackett>      [src] URL to Jackett instance from where indexers should be sourced Basic Auth
+                                 credentials will be extracted and used as admin password [env: SYNC_JACKETT_URL=]
+        --radarr <radarr>        [dst] URL to Radarr instance where indexers should be updated. Encoded Basic Auth
+                                 credentials will be extracted and used as the API token [env: SYNC_RADARR_URL=]
+        --sonarr <sonarr>        [dst] URL to Sonarr instance where indexers should be updated. Encoded Basic Auth
+                                 credentials will be extracted and used as the API token [env: SYNC_SONARR_URL=]
 
 $ indexer-sync --jackett http://$JACKETT_ADMIN_PW@jackett-instance:1234 --sonarr http://$SONARR_API_KEY@sonarr-instance:5678/
-Adding ETTV to Sonarr... [done]
-Updating RarBG in Sonarr... [done]
+ INFO  indexer_sync > Fetching indexers from Jackett
+ INFO  indexer_sync > Updating indexers in Sonarr
+ INFO  indexer_sync::destination::sonarr > Updating ETTV {jackett:ettv} in Sonarr (id: 28)
+ INFO  indexer_sync::destination::sonarr > Updating RARBG {jackett:rarbg} in Sonarr (id: 35)
 ...
 ```
 
