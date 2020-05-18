@@ -13,12 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add short-hand flags for existing sources and destinations
-- Implemented `-i`/`--interval` flag that activates a long-running mode which
-  syncs every `-i` seconds.
-- Added ability to filter indexers to sync by name
-- Improved output with adjustable log levels (controllable with `RUST_LOG` for
-  now). Defaults to level 'info' in release builds and 'debug' in debug builds.
+- Short-hand flags for existing sources and destinations
+- `-i`/`--interval` flag to activate long-running mode which syncs every `-i`
+  seconds.
+- Ability to filter indexers to sync by name
+- Configurable log levels. Defaults to level 'info' in release builds and
+- 'debug' in debug builds.
 - Pre-built binaries for Linux using musl
 - Pre-built binaries for other semi-common architectures
 - Docker build
@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Changed
+
+- Improved log output from commandwith adjustable log levels (controllable with
+  `RUST_LOG` for now).
 
 ### Deprecated
 
