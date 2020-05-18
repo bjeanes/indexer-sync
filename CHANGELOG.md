@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Improved output with adjustable log levels (controllable with `RUST_LOG` for
+  now). Defaults to level 'info' in release builds and 'debug' in debug builds.
 - Pre-built binaries for Linux using musl
 - Pre-built binaries for other semi-common architectures
 - Docker build

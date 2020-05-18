@@ -121,6 +121,21 @@ pub struct Indexer {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut log_builder = pretty_env_logger::formatted_builder();
+    match ::std::env::var("RUST_LOG") {
+        Ok(s) if !s.is_empty() => {
+            log_builder.parse_filters(&s);
+        }
+        _ => {
+            #[cfg(not(debug_assertions))] // default production log-level
+            log_builder.parse_filters("info");
+
+            #[cfg(debug_assertions)] // default test/debug log-level
+            log_builder.parse_filters("info,indexer_sync=debug");
+        }
+    }
+    log_builder.try_init()?;
+
     let opts: Opts = Opts::parse();
 
     let mut indexers = vec![];
@@ -128,11 +143,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sonarr: sonarr::Sonarr;
 
     if let Some(url) = opts.jackett.clone() {
+        log::info!("Fetching indexers from Jackett");
         let jackett = jackett::new(url).await?;
-        indexers.extend(jackett.fetch_indexers().await?);
+        let jackett_indexers = jackett.fetch_indexers().await?;
+        log::debug!(
+            "Fetched: {:?}",
+            jackett_indexers
+                .iter()
+                .map(|i| i.source.name_id())
+                .collect::<Vec<_>>()
+        );
+        indexers.extend(jackett_indexers);
     }
 
     if let Some(url) = opts.sonarr.clone() {
+        log::info!("Updating indexers in Sonarr");
         sonarr = sonarr::new(url)?;
         updates.push(sonarr.update_indexers(&indexers));
     }

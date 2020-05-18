@@ -317,12 +317,11 @@ enum Field {
 
 impl SonarrIndexer {
     async fn save(&mut self, target: &Sonarr) -> Result<(), Box<dyn std::error::Error>> {
-        let (method, path) = if self.id.is_some() {
-            (
-                reqwest::Method::PUT,
-                format!("/api/v3/indexer/{}", &self.id.unwrap()),
-            )
+        let (method, path) = if let Some(id) = &self.id {
+            log::info!("Updating {} in Sonarr (id: {})", &self.name, &id);
+            (reqwest::Method::PUT, format!("/api/v3/indexer/{}", &id))
         } else {
+            log::info!("Creating {} in Sonarr", &self.name);
             (reqwest::Method::POST, "/api/v3/indexer".to_owned())
         };
 
@@ -333,24 +332,32 @@ impl SonarrIndexer {
             .send()
             .await?;
 
-        print!("{} {} ({})", &method, &path, &self.name);
-        println!(" - {}", response.status());
+        log::debug!(
+            "    -> {} {} ({}) - {}",
+            &method,
+            &path,
+            &self.name,
+            response.status()
+        );
+        log::debug!("    -> TV categories: {:?}", &self.categories);
+        log::debug!("    -> Anime categories: {:?}", &self.anime_categories);
 
         match response.status() {
             status if status.is_success() => {
-                *self = response.json().await?;
-                if status == reqwest::StatusCode::CREATED {
-                    println!("    -> {}", &self.id.unwrap());
+                if status == reqwest::StatusCode::CREATED || status == reqwest::StatusCode::ACCEPTED
+                {
+                    *self = response.json().await?;
+                    log::debug!("    <- {}", &self.id.unwrap());
                 }
                 Ok(())
             }
             status if status.is_client_error() => {
-                println!(
-                    "    -> {}",
-                    response.json::<serde_json::Value>().await?[0]["errorMessage"]
-                        .as_str()
-                        .unwrap()
-                );
+                let response = response.text().await?;
+                log::debug!("    <- {}", &response);
+
+                let response = serde_json::from_str::<serde_json::Value>(&response)?;
+                log::error!("    <- {}", response[0]["errorMessage"].as_str().unwrap());
+
                 Err(Box::new(crate::Error("Save rejected".to_owned()))
                     as Box<dyn std::error::Error>)
             }
