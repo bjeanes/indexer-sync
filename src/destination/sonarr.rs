@@ -407,10 +407,9 @@ impl Sonarr {
                         sonarr_indexer = schemas
                             .iter_mut()
                             .find(|schema| schema.implementation == Implementation::Newznab)
-                            .expect(&format!(
-                                "A schema of type {:?} is expected",
-                                Implementation::Newznab
-                            ));
+                            .unwrap_or_else(|| {
+                                panic!("A schema of type {:?} is expected", Implementation::Newznab)
+                            });
                     }
 
                     sonarr_indexer.api_key = feed.api_key.as_deref().unwrap_or("").to_owned();
@@ -431,10 +430,9 @@ impl Sonarr {
                         sonarr_indexer = schemas
                             .iter_mut()
                             .find(|schema| schema.implementation == Implementation::Torznab)
-                            .expect(&format!(
-                                "A schema of type {:?} is expected",
-                                Implementation::Torznab
-                            ));
+                            .unwrap_or_else(|| {
+                                panic!("A schema of type {:?} is expected", Implementation::Torznab)
+                            });
                     }
 
                     sonarr_indexer.api_key = feed.api_key.as_deref().unwrap_or("").to_owned();
@@ -457,10 +455,12 @@ impl Sonarr {
                             .find(|schema| {
                                 schema.implementation == Implementation::TorrentRssIndexer
                             })
-                            .expect(&format!(
-                                "A schema of type {:?} is expected",
-                                Implementation::TorrentRssIndexer
-                            ));
+                            .unwrap_or_else(|| {
+                                panic!(
+                                    "A schema of type {:?} is expected",
+                                    Implementation::TorrentRssIndexer
+                                )
+                            });
                     }
 
                     sonarr_indexer.url = feed.0.to_owned();
@@ -471,8 +471,14 @@ impl Sonarr {
             }
 
             sonarr_indexer.name = format!("{} {{{}}}", indexer.name, indexer.source.name_id());
-            // sonarr_indexer.save(&self).await?;
-            sonarr_indexer.save(&self).await;
+
+            // We want to proceed, even if save() returns an Err. For now, the
+            // error-handling (just logging) is inlined into the save() method.
+            // I'd like it to live here but unfortunately Reqwest's error won't
+            // give access to the response body, which has further error
+            // details. Eventually, I'll wrap my own error type in there and do
+            // some handling here.
+            let _ = sonarr_indexer.save(&self).await;
         }
 
         Ok(())

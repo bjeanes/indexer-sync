@@ -148,7 +148,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // FILTER
 
-        if opts.indexers_to_sync.len() > 0 {
+        if !opts.indexers_to_sync.is_empty() {
             let filters: Vec<_> = opts
                 .indexers_to_sync
                 .iter()
