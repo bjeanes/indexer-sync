@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Implemented `-i`/`--interval` flag that activates a long-running mode which
+  syncs every `-i` seconds.
 - Added ability to filter indexers to sync by name
 - Improved output with adjustable log levels (controllable with `RUST_LOG` for
   now). Defaults to level 'info' in release builds and 'debug' in debug builds.

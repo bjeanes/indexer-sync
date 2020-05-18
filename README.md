@@ -48,6 +48,8 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -i, --interval <interval>    The interval (in seconds) between sync runs. Syncer will run once and exit if this is
+                                 not provided [env: SYNC_INTERVAL=]
         --jackett <jackett>      [src] URL to Jackett instance from where indexers should be sourced Basic Auth
                                  credentials will be extracted and used as admin password [env: SYNC_JACKETT_URL=]
         --radarr <radarr>        [dst] URL to Radarr instance where indexers should be updated. Encoded Basic Auth

@@ -34,6 +34,11 @@ struct Opts {
     #[clap(long, validator = is_http_url, env = "SYNC_RADARR_URL", group = "dst")]
     radarr: Option<Url>,
 
+    /// The interval (in seconds) between sync runs. Syncer will run once and
+    /// exit if this is not provided.
+    #[clap(short, long, env = "SYNC_INTERVAL", group = "dst")]
+    interval: Option<u64>,
+
     /// Provide indexers that you want to update. These values will be case-insensitively substring
     /// matched against indexer/tracker names. Only those which match will be synced. If not
     /// provided, all discovered indexers will be synced.
@@ -119,68 +124,77 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let opts: Opts = Opts::parse();
 
-    let mut indexers = vec![];
-    let mut updates = vec![];
-    let sonarr: sonarr::Sonarr;
+    loop {
+        let mut indexers = vec![];
+        let mut updates = vec![];
+        let sonarr: sonarr::Sonarr;
 
-    // FETCH
+        // FETCH
 
-    if let Some(url) = opts.jackett.clone() {
-        log::info!("Fetching indexers from Jackett");
-        let jackett = jackett::new(url).await?;
-        let jackett_indexers = jackett.fetch_indexers().await?;
-        log::debug!("Fetched: {}", {
-            let mut i = jackett_indexers
-                .iter()
-                .map(|i| i.name.as_ref())
-                .collect::<Vec<&str>>();
-            i.sort();
-            i.join(", ")
-        });
-        indexers.extend(jackett_indexers);
-    }
-
-    // FILTER
-
-    if opts.indexers_to_sync.len() > 0 {
-        let filters: Vec<_> = opts
-            .indexers_to_sync
-            .iter()
-            .map(|f| f.to_lowercase())
-            .collect();
-
-        indexers = indexers
-            .into_iter()
-            .filter(|i| filters.iter().any(|f| i.name.to_lowercase().contains(f)))
-            .collect();
-
-        log::debug!(
-            "Filtered indexers to {}",
-            if indexers.is_empty() {
-                "empty list".to_owned()
-            } else {
-                indexers
+        if let Some(url) = opts.jackett.clone() {
+            log::info!("Fetching indexers from Jackett");
+            let jackett = jackett::new(url).await?;
+            let jackett_indexers = jackett.fetch_indexers().await?;
+            log::debug!("Fetched: {}", {
+                let mut i = jackett_indexers
                     .iter()
                     .map(|i| i.name.as_ref())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            }
-        );
-    }
-
-    // UPDATE
-
-    if indexers.is_empty() {
-        log::warn!("No indexers to sync");
-    } else {
-        if let Some(url) = opts.sonarr.clone() {
-            log::info!("Updating indexers in Sonarr");
-            sonarr = sonarr::new(url)?;
-            updates.push(sonarr.update_indexers(&indexers));
+                    .collect::<Vec<&str>>();
+                i.sort();
+                i.join(", ")
+            });
+            indexers.extend(jackett_indexers);
         }
 
-        for future in updates {
-            future.await?;
+        // FILTER
+
+        if opts.indexers_to_sync.len() > 0 {
+            let filters: Vec<_> = opts
+                .indexers_to_sync
+                .iter()
+                .map(|f| f.to_lowercase())
+                .collect();
+
+            indexers = indexers
+                .into_iter()
+                .filter(|i| filters.iter().any(|f| i.name.to_lowercase().contains(f)))
+                .collect();
+
+            log::debug!(
+                "Filtered indexers to {}",
+                if indexers.is_empty() {
+                    "empty list".to_owned()
+                } else {
+                    indexers
+                        .iter()
+                        .map(|i| i.name.as_ref())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                }
+            );
+        }
+
+        // UPDATE
+
+        if indexers.is_empty() {
+            log::warn!("No indexers to sync");
+        } else {
+            if let Some(url) = opts.sonarr.clone() {
+                log::info!("Updating indexers in Sonarr");
+                sonarr = sonarr::new(url)?;
+                updates.push(sonarr.update_indexers(&indexers));
+            }
+
+            for future in updates {
+                future.await?;
+            }
+        }
+
+        if let Some(interval) = opts.interval {
+            log::info!("Sleeping for {} seconds", interval);
+            std::thread::sleep(std::time::Duration::from_secs(interval));
+        } else {
+            break;
         }
     }
 
