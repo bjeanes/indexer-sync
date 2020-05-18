@@ -50,11 +50,11 @@ FLAGS:
 OPTIONS:
     -i, --interval <interval>    The interval (in seconds) between sync runs. Syncer will run once and exit if this is
                                  not provided [env: SYNC_INTERVAL=]
-        --jackett <jackett>      [src] URL to Jackett instance from where indexers should be sourced Basic Auth
+    -J, --jackett <jackett>      [src] URL to Jackett instance from where indexers should be sourced Basic Auth
                                  credentials will be extracted and used as admin password [env: SYNC_JACKETT_URL=]
-        --radarr <radarr>        [dst] URL to Radarr instance where indexers should be updated. Encoded Basic Auth
+    -R, --radarr <radarr>        [dst] URL to Radarr instance where indexers should be updated. Encoded Basic Auth
                                  credentials will be extracted and used as the API token [env: SYNC_RADARR_URL=]
-        --sonarr <sonarr>        [dst] URL to Sonarr instance where indexers should be updated. Encoded Basic Auth
+    -S, --sonarr <sonarr>        [dst] URL to Sonarr instance where indexers should be updated. Encoded Basic Auth
                                  credentials will be extracted and used as the API token [env: SYNC_SONARR_URL=]
 
 $ indexer-sync --jackett http://$JACKETT_ADMIN_PW@jackett-instance:1234 --sonarr http://$SONARR_API_KEY@sonarr-instance:5678/

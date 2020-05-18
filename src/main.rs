@@ -21,17 +21,17 @@ use util::is_http_url;
 struct Opts {
     /// [src] URL to Jackett instance from where indexers should be sourced
     /// Basic Auth credentials will be extracted and used as admin password.
-    #[clap(long, validator = is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
+    #[clap(short = "J", long, validator = is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
     jackett: Option<Url>,
 
     /// [dst] URL to Sonarr instance where indexers should be updated. Encoded
     /// Basic Auth credentials will be extracted and used as the API token.
-    #[clap(long, validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
+    #[clap(short = "S", long, validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
     sonarr: Option<Url>,
 
     /// [dst] URL to Radarr instance where indexers should be updated. Encoded
     /// Basic Auth credentials will be extracted and used as the API token.
-    #[clap(long, validator = is_http_url, env = "SYNC_RADARR_URL", group = "dst")]
+    #[clap(short = "R", long, validator = is_http_url, env = "SYNC_RADARR_URL", group = "dst")]
     radarr: Option<Url>,
 
     /// The interval (in seconds) between sync runs. Syncer will run once and

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add short-hand flags for existing sources and destinations
 - Implemented `-i`/`--interval` flag that activates a long-running mode which
   syncs every `-i` seconds.
 - Added ability to filter indexers to sync by name
