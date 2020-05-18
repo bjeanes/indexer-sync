@@ -39,31 +39,6 @@ struct Opts {
     /// provided, all discovered indexers will be synced.
     #[clap(name = "INDEXER")]
     indexers_to_sync: Vec<String>,
-    //
-
-    // /// [dst] URL to Lidarr instance where indexers should be updated
-    // #[clap(long, validator = is_http_url, env = "SYNC_LIDARR_URL", group = "dst")]
-    // lidarr: Option<Url>,
-
-    // /// [dst] URL to CouchPotato instance where indexers should be updated
-    // #[clap(long = "cp", validator = is_http_url, env = "SYNC_LIDARR_URL", group = "dst")]
-    // couch_potato: Option<Url>,
-
-    // /// [src] URL to Cardigann instance from where indexers should be sourced
-    // #[clap(long, validator = is_http_url, env = "SYNC_CARDIGANN_URL", group = "src")]
-    // cardigann: Option<Url>,
-
-    // /// [src] URL to NZBHydra2 instance from where indexers should be sourced
-    // #[clap(long, validator = is_http_url, env = "SYNC_NZBHYDRA2_URL", group = "src")]
-    // nzbhydra2: Option<Url>,
-
-    // /// The interval (in seconds) between sync runs.
-    // #[clap(short, long, default_value = "300", env = "SYNC_INTERVAL", group = "dst")]
-    // interval: usize,
-
-    // /// Run the sync once, then exit
-    // #[clap(short, long)]
-    // once_off: bool
 }
 
 #[derive(Debug, Deserialize, Clone, Copy)]
