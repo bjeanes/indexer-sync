@@ -1,3 +1,5 @@
+#![allow(clippy::trivially_copy_pass_by_ref)]
+
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
@@ -9,14 +11,14 @@ pub struct Capability {
     name: String,
 }
 
-pub trait Capabilities<'a> {
-    fn series(&'a self) -> Vec<Capability>;
-    fn movies(&'a self) -> Vec<Capability>;
+pub trait Capabilities {
+    fn series(&self) -> Vec<Capability>;
+    fn movies(&self) -> Vec<Capability>;
 
     // TODO some indexers have categories like "TV/Anime" but some are just
     // "Anime", so this may need to be a bit more nuanced in the future. For
     // now, I'll just lump all anime together.
-    fn anime(&'a self) -> Vec<Capability>;
+    fn anime(&self) -> Vec<Capability>;
 }
 
 pub trait Ids<T> {
@@ -50,8 +52,8 @@ fn exclude_porn(cap: &&Capability) -> bool {
         || name.contains("hentai"))
 }
 
-impl<'a> Capabilities<'a> for Vec<Capability> {
-    fn series(&'a self) -> Vec<Capability> {
+impl Capabilities for Vec<Capability> {
+    fn series(&self) -> Vec<Capability> {
         self.iter()
             .filter(|cap| {
                 let name = cap.name.to_ascii_lowercase();
@@ -63,7 +65,7 @@ impl<'a> Capabilities<'a> for Vec<Capability> {
             .collect()
     }
 
-    fn anime(&'a self) -> Vec<Capability> {
+    fn anime(&self) -> Vec<Capability> {
         self.iter()
             .filter(|cap| cap.name.to_ascii_lowercase().contains("anime"))
             .filter(exclude_porn)
@@ -71,7 +73,7 @@ impl<'a> Capabilities<'a> for Vec<Capability> {
             .collect()
     }
 
-    fn movies(&'a self) -> Vec<Capability> {
+    fn movies(&self) -> Vec<Capability> {
         self.iter()
             .filter(|cap| {
                 let name = cap.name.to_ascii_lowercase();
