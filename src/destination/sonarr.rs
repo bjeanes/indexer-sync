@@ -365,13 +365,21 @@ impl SonarrIndexer {
         }
     }
 }
+struct IndexerSchemas(Vec<SonarrIndexer>);
+
+impl<'a> IndexerSchemas {
+    fn find(&'a self, kind: Implementation) -> &SonarrIndexer {
+        let Self(schemas) = self;
+        schemas
+            .iter()
+            .find(|schema| schema.implementation == kind)
+            .unwrap_or_else(|| panic!("A schema of type {:?} is expected", kind))
+    }
+}
 
 impl Sonarr {
-    pub async fn update_indexers(
-        self,
-        indexers: &[crate::Indexer],
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let mut schemas: Vec<SonarrIndexer> = self
+    async fn schemas(&self) -> Result<IndexerSchemas, Box<dyn std::error::Error>> {
+        let schemas: Vec<SonarrIndexer> = self
             .client
             .get(self.url.join("/api/v3/indexer/schema")?)
             .send()
@@ -379,7 +387,19 @@ impl Sonarr {
             .json()
             .await?;
 
-        let mut existing_indexers: Vec<SonarrIndexer> = self
+        // Filter out schemas we don't know anything about
+        let schemas = schemas
+            .into_iter()
+            .filter(|i| i.config_contract != ConfigContract::Other)
+            .collect();
+
+        log::trace!("Fetched indexer schemas {:?}", schemas);
+
+        Ok(IndexerSchemas(schemas))
+    }
+
+    async fn existing_indexers(&self) -> Result<Vec<SonarrIndexer>, Box<dyn std::error::Error>> {
+        let indexers: Vec<SonarrIndexer> = self
             .client
             .get(self.url.join("/api/v3/indexer")?)
             .send()
@@ -387,7 +407,28 @@ impl Sonarr {
             .json()
             .await?;
 
+        // Filter out schemas we don't know anything about
+        let indexers = indexers
+            .into_iter()
+            .filter(|i| i.config_contract != ConfigContract::Other)
+            .collect();
+
+        log::trace!("Fetched existing indexers {:?}", indexers);
+
+        Ok(indexers)
+    }
+
+    pub async fn update_indexers(
+        self,
+        indexers: &[crate::Indexer],
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let schemas = self.schemas().await?;
+        let mut existing_indexers = self.existing_indexers().await?;
+
         for indexer in indexers {
+            log::trace!("Processing {:?}", indexer);
+
+            let mut new_indexer;
             let mut sonarr_indexer: &mut SonarrIndexer;
             let existing_indexer = existing_indexers
                 .iter_mut()
@@ -402,15 +443,11 @@ impl Sonarr {
                         existing_indexer.filter(|i| i.implementation == Implementation::Newznab);
 
                     if let Some(existing_indexer) = existing_indexer {
-                        sonarr_indexer = existing_indexer;
+                        sonarr_indexer = existing_indexer
                     } else {
-                        sonarr_indexer = schemas
-                            .iter_mut()
-                            .find(|schema| schema.implementation == Implementation::Newznab)
-                            .unwrap_or_else(|| {
-                                panic!("A schema of type {:?} is expected", Implementation::Newznab)
-                            });
-                    }
+                        new_indexer = schemas.find(Implementation::Newznab).clone();
+                        sonarr_indexer = &mut new_indexer;
+                    };
 
                     sonarr_indexer.api_key = feed.api_key.as_deref().unwrap_or("").to_owned();
                     sonarr_indexer.url = feed.url.to_owned();
@@ -427,12 +464,8 @@ impl Sonarr {
                     if let Some(existing_indexer) = existing_indexer {
                         sonarr_indexer = existing_indexer;
                     } else {
-                        sonarr_indexer = schemas
-                            .iter_mut()
-                            .find(|schema| schema.implementation == Implementation::Torznab)
-                            .unwrap_or_else(|| {
-                                panic!("A schema of type {:?} is expected", Implementation::Torznab)
-                            });
+                        new_indexer = schemas.find(Implementation::Torznab).clone();
+                        sonarr_indexer = &mut new_indexer;
                     }
 
                     sonarr_indexer.api_key = feed.api_key.as_deref().unwrap_or("").to_owned();
@@ -450,17 +483,8 @@ impl Sonarr {
                     if let Some(existing_indexer) = existing_indexer {
                         sonarr_indexer = existing_indexer;
                     } else {
-                        sonarr_indexer = schemas
-                            .iter_mut()
-                            .find(|schema| {
-                                schema.implementation == Implementation::TorrentRssIndexer
-                            })
-                            .unwrap_or_else(|| {
-                                panic!(
-                                    "A schema of type {:?} is expected",
-                                    Implementation::TorrentRssIndexer
-                                )
-                            });
+                        new_indexer = schemas.find(Implementation::TorrentRssIndexer).clone();
+                        sonarr_indexer = &mut new_indexer;
                     }
 
                     sonarr_indexer.url = feed.0.to_owned();
