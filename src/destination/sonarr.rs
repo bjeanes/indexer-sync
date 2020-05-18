@@ -430,9 +430,14 @@ impl Sonarr {
 
             let mut new_indexer;
             let mut sonarr_indexer: &mut SonarrIndexer;
-            let existing_indexer = existing_indexers
-                .iter_mut()
-                .find(|i| i.name.contains(&indexer.source.name_id()));
+
+            let existing_indexer = existing_indexers.iter_mut().find(|i| {
+                let does_match = i
+                    .name
+                    .contains(&format!("{{{}}}", indexer.source.name_id()));
+                log::trace!("Checking if it matches {:?}: {}", i.name, does_match);
+                does_match
+            });
 
             match indexer.urls {
                 FeedUrls {

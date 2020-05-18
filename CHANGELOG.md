@@ -36,9 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known Issues
 
-- Sometimes the syncer doesn't correctly identify an existing indexer in
-  Sonarr and attempts to create a new one instead.
-  ([#1](https://github.com/bjeanes/indexer-sync/issues/1))
 - Code quality is poor. This first release should be considered a proof-of-concept.
 
 ## [v0.1.0] - 2020-05-18
