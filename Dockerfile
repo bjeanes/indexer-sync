@@ -7,7 +7,13 @@ ARG BASE_IMAGE=ekidd/rust-musl-builder:latest
 # Our first FROM statement declares the build environment.
 FROM ${BASE_IMAGE} AS builder
 
-# Add our sourc; code.
+# Build a cacheable layer with project dependencies
+RUN USER=rust cargo new /home/rust/indexer-sync
+WORKDIR /home/rust/indexer-sync
+ADD --chown=rust:rust Cargo.* ./
+RUN cargo build --release
+
+# Add our source code.
 ADD --chown=rust:rust . ./
 
 # Build our application.
@@ -18,7 +24,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder \
-    /home/rust/src/target/x86_64-unknown-linux-musl/release/indexer-sync \
+    /home/rust/indexer-sync/target/x86_64-unknown-linux-musl/release/indexer-sync \
     /usr/local/bin/
 
 ENV RUST_LOG=warn,indexer_sync=info
