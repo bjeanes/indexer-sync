@@ -36,7 +36,7 @@ Bo Jeanes <me@bjeanes.com>
 At least one [src] and at least one [dst] must be specified in order to sync
 
 USAGE:
-    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>|--radarr <radarr>|--interval <interval>> [INDEXER]...
+    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>|--radarr <radarr>> [INDEXER]...
 
 ARGS:
     <INDEXER>...    Provide indexers that you want to update. These values will be case-insensitively substring

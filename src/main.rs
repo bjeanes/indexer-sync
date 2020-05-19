@@ -36,7 +36,7 @@ struct Opts {
 
     /// The interval (in seconds) between sync runs. Syncer will run once and
     /// exit if this is not provided.
-    #[clap(short, long, env = "SYNC_INTERVAL", group = "dst")]
+    #[clap(short, long, env = "SYNC_INTERVAL")]
     interval: Option<u64>,
 
     /// Provide indexers that you want to update. These values will be case-insensitively substring
