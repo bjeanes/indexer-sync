@@ -22,7 +22,7 @@ You can also pull [releases from DockerHub](https://hub.docker.com/repository/do
 ```sh-session
 $ docker pull bjeanes/indexer-sync:unstable # built from master when tests pass
 $ docker pull bjeanes/indexer-sync:latest   # built from latest tagged release
-$ docker pull bjeanes/indexer-sync:v0.1     # built from specified tagged release
+$ docker pull bjeanes/indexer-sync:v0.2     # built from specified tagged release
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ This is very early work-in-progress so the following is aspirational:
 
 ``` sh-session
 $ indexer-sync --help
-indexer-sync 0.2.0
+indexer-sync 0.3.0
 Bo Jeanes <me@bjeanes.com>
 At least one {src} and at least one {dst} must be specified in order to sync
 

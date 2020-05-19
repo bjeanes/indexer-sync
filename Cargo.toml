@@ -1,6 +1,6 @@
 [package]
 name = "indexer-sync"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Bo Jeanes <me@bjeanes.com>"]
 edition = "2018"
 

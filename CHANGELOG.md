@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 </small>
 
+## [v0.3.0] - Unreleased
+
+_No changes yet_
+
 ## [v0.2.0] - 2020-05-19
 
 ### Added
@@ -20,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are provided.
 - Ability to filter indexers to sync by name
 - Configurable log levels. Defaults to level 'info' in release builds and
-- 'debug' in debug builds.
+  'debug' in debug builds.
 - Pre-built binaries for Linux using musl
 - Pre-built binaries for other semi-common architectures
 - Docker build
@@ -53,6 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--radarr` flag shows up in `--help` but doesn't actually do anything yet (whoops)
 - Code quality is poor. This first release should be considered a proof-of-concept.
 
-[v0.2.0]: https://github.com/bjeanes/indexer-sync/compare/v0.2.0..HEAD
+[v0.3.0]: https://github.com/bjeanes/indexer-sync/compare/v0.2.0..HEAD
 [v0.2.0]: https://github.com/bjeanes/indexer-sync/compare/v0.1.0..v0.2.0
 [v0.1.0]: https://github.com/bjeanes/indexer-sync/tree/v0.1.0
