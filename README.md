@@ -102,7 +102,8 @@ there are bound to be ways in which I don't yet know it's rough.
 
    It would filter the categories each indexer supports to the ones from that
    list when passed to the media manager.
-* [ ] Docker image and `docker-compose.yml` example so it can be set-and-forget
+* [x] Docker image
+   * [ ] `docker-compose.yml` example so it can be set-and-forget
 * [ ] Pull indexer definitions from NZBHydra2
 * [ ] Add/update indexers in Lidarr
 * After that, I'd be happy to grow this tool to support the following, but I do not personally use these:
@@ -110,3 +111,4 @@ there are bound to be ways in which I don't yet know it's rough.
    * [ ] Sickbeard
    * [ ] Sickrage
    * [ ] Cardigann
+   * etc
