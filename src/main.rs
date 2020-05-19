@@ -29,11 +29,6 @@ struct Opts {
     #[clap(short = "S", long, validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
     sonarr: Option<Url>,
 
-    /// [dst] URL to Radarr instance where indexers should be updated. Encoded
-    /// Basic Auth credentials will be extracted and used as the API token.
-    #[clap(short = "R", long, validator = is_http_url, env = "SYNC_RADARR_URL", group = "dst")]
-    radarr: Option<Url>,
-
     /// The interval (in seconds) between sync runs. Syncer will run once and
     /// exit if this is not provided.
     #[clap(short, long, env = "SYNC_INTERVAL")]

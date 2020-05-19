@@ -36,7 +36,7 @@ Bo Jeanes <me@bjeanes.com>
 At least one [src] and at least one [dst] must be specified in order to sync
 
 USAGE:
-    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>|--radarr <radarr>> [INDEXER]...
+    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>> [INDEXER]...
 
 ARGS:
     <INDEXER>...    Provide indexers that you want to update. These values will be case-insensitively substring
@@ -52,8 +52,6 @@ OPTIONS:
                                  not provided [env: SYNC_INTERVAL=]
     -J, --jackett <jackett>      [src] URL to Jackett instance from where indexers should be sourced Basic Auth
                                  credentials will be extracted and used as admin password [env: SYNC_JACKETT_URL=]
-    -R, --radarr <radarr>        [dst] URL to Radarr instance where indexers should be updated. Encoded Basic Auth
-                                 credentials will be extracted and used as the API token [env: SYNC_RADARR_URL=]
     -S, --sonarr <sonarr>        [dst] URL to Sonarr instance where indexers should be updated. Encoded Basic Auth
                                  credentials will be extracted and used as the API token [env: SYNC_SONARR_URL=]
 
