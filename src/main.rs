@@ -15,25 +15,28 @@ pub use znab::*;
 
 use util::is_http_url;
 
-/// At least one [src] and at least one [dst] must be specified in order to sync.
+/// At least one {src} and at least one {dst} must be specified in order to sync.
 #[derive(Clap, Debug)]
 #[clap(version = crate_version!(), author = crate_authors!(), group = ArgGroup::with_name("src").multiple(true).required(true), group = ArgGroup::with_name("dst").multiple(true).required(true))]
 struct Opts {
-    /// [src] URL to Jackett instance from where indexers should be sourced
+    /// {src} Source indexers from this Jackett instance
+    ///
     /// Basic Auth credentials will be extracted and used as admin password.
-    #[clap(short = "J", long, validator = is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
+    #[clap(short = "J", long, name = "JACKETT_URL", validator = is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
     jackett: Option<Url>,
 
-    /// [dst] URL to Sonarr instance where indexers should be updated. Encoded
-    /// Basic Auth credentials will be extracted and used as the API token.
-    #[clap(short = "S", long, validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
+    /// {dst} Sync indexers to this Sonarr instance
+    ///
+    /// Encoded Basic Auth credentials will be extracted and used as the API token.
+    #[clap(short = "S", long, name = "SONARR_URL", validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
     sonarr: Option<Url>,
 
-    /// The interval (in seconds) between sync runs. Syncer will run once and
-    /// exit if this is not provided.
-    #[clap(short, long, env = "SYNC_INTERVAL")]
+    /// Polling mode. Sync every SECS seconds
+    #[clap(short, long, name = "SECS", env = "SYNC_INTERVAL")]
     interval: Option<u64>,
 
+    /// Limit synced endexers to those matching these terms
+    ///
     /// Provide indexers that you want to update. These values will be case-insensitively substring
     /// matched against indexer/tracker names. Only those which match will be synced. If not
     /// provided, all discovered indexers will be synced.
