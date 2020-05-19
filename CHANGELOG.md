@@ -14,14 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Short-hand flags for existing sources and destinations
-- `-i`/`--interval` flag to activate long-running mode which syncs every `-i`
-  seconds.
+- `-i`/`--interval` flag to activate long-running mode which runs the sync
+  every time the duration specified by `-i` has elapsed. The value is
+  interpreted as per [systemd.time] and is interpreted as seconds if no units
+  are provided.
 - Ability to filter indexers to sync by name
 - Configurable log levels. Defaults to level 'info' in release builds and
 - 'debug' in debug builds.
 - Pre-built binaries for Linux using musl
 - Pre-built binaries for other semi-common architectures
 - Docker build
+
+[systemd.time]: https://www.freedesktop.org/software/systemd/man/systemd.time.html#Parsing%20Time%20Spans
 
 ### Fixed
 

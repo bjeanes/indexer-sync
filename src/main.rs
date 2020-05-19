@@ -1,5 +1,6 @@
 use clap::{crate_authors, crate_version, ArgGroup, Clap};
 use serde::Deserialize;
+use std::time::Duration;
 use url::Url;
 
 mod destination;
@@ -13,8 +14,6 @@ pub use error::*;
 use source::jackett;
 pub use znab::*;
 
-use util::is_http_url;
-
 /// At least one {src} and at least one {dst} must be specified in order to sync.
 #[derive(Clap, Debug)]
 #[clap(version = crate_version!(), author = crate_authors!(), group = ArgGroup::new("src").multiple(true).required(true), group = ArgGroup::new("dst").multiple(true).required(true))]
@@ -22,18 +21,22 @@ struct Opts {
     /// {src} Source indexers from this Jackett instance
     ///
     /// Basic Auth credentials will be extracted and used as admin password.
-    #[clap(short = "J", long, name = "JACKETT_URL", validator = is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
+    #[clap(short = "J", long, name = "JACKETT_URL", validator = util::is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
     jackett: Option<Url>,
 
     /// {dst} Sync indexers to this Sonarr instance
     ///
     /// Encoded Basic Auth credentials will be extracted and used as the API token.
-    #[clap(short = "S", long, name = "SONARR_URL", validator = is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
+    #[clap(short = "S", long, name = "SONARR_URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
     sonarr: Option<Url>,
 
-    /// Polling mode. Sync every SECS seconds
-    #[clap(short, long, name = "SECS", env = "SYNC_INTERVAL")]
-    interval: Option<u64>,
+    /// Polling mode. Sync every DURATION ("1h", "3s", etc)
+    ///
+    /// DURATION is parsed as per systemd. "1 hour 3 seconds", "1h", etc are all
+    /// valid. If a single number with no unit is provided, it will be
+    /// interpreted as seconds.
+    #[clap(short, long, name = "DURATION", env = "SYNC_INTERVAL", parse(try_from_str = parse_duration::parse::parse))]
+    interval: Option<Duration>,
 
     /// Limit synced endexers to those matching these terms
     ///
@@ -189,8 +192,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if let Some(interval) = opts.interval {
-            log::info!("Sleeping for {} seconds", interval);
-            std::thread::sleep(std::time::Duration::from_secs(interval));
+            log::info!("Sleeping for {} seconds", interval.as_secs_f64());
+            std::thread::sleep(interval);
         } else {
             break;
         }
