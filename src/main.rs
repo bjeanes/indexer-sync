@@ -17,7 +17,7 @@ use util::is_http_url;
 
 /// At least one {src} and at least one {dst} must be specified in order to sync.
 #[derive(Clap, Debug)]
-#[clap(version = crate_version!(), author = crate_authors!(), group = ArgGroup::with_name("src").multiple(true).required(true), group = ArgGroup::with_name("dst").multiple(true).required(true))]
+#[clap(version = crate_version!(), author = crate_authors!(), group = ArgGroup::new("src").multiple(true).required(true), group = ArgGroup::new("dst").multiple(true).required(true))]
 struct Opts {
     /// {src} Source indexers from this Jackett instance
     ///
@@ -120,7 +120,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     log_builder.try_init()?;
 
-    let opts: Opts = Opts::parse();
+    let opts = Opts::parse();
 
     loop {
         let mut indexers = vec![];
