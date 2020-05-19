@@ -33,27 +33,41 @@ This is very early work-in-progress so the following is aspirational:
 $ indexer-sync --help
 indexer-sync 0.2.0
 Bo Jeanes <me@bjeanes.com>
-At least one [src] and at least one [dst] must be specified in order to sync
+At least one {src} and at least one {dst} must be specified in order to sync
 
 USAGE:
-    indexer-sync [OPTIONS] <--jackett <jackett>> <--sonarr <sonarr>> [INDEXER]...
+    indexer-sync [OPTIONS] <--jackett <JACKETT_URL>> <--sonarr <SONARR_URL>> [INDEXER]...
 
 ARGS:
-    <INDEXER>...    Provide indexers that you want to update. These values will be case-insensitively substring
-                    matched against indexer/tracker names. Only those which match will be synced. If not provided,
-                    all discovered indexers will be synced
+    <INDEXER>...
+            Limit synced endexers to those matching these terms
+
+            Provide indexers that you want to update. These values will be case-insensitively substring matched against
+            indexer/tracker names. Only those which match will be synced. If not provided, all discovered indexers will
+            be synced.
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help
+            Prints help information
+
+    -V, --version
+            Prints version information
+
 
 OPTIONS:
-    -i, --interval <interval>    The interval (in seconds) between sync runs. Syncer will run once and exit if this is
-                                 not provided [env: SYNC_INTERVAL=]
-    -J, --jackett <jackett>      [src] URL to Jackett instance from where indexers should be sourced Basic Auth
-                                 credentials will be extracted and used as admin password [env: SYNC_JACKETT_URL=]
-    -S, --sonarr <sonarr>        [dst] URL to Sonarr instance where indexers should be updated. Encoded Basic Auth
-                                 credentials will be extracted and used as the API token [env: SYNC_SONARR_URL=]
+    -i, --interval <DURATION>
+            Polling mode. Sync every DURATION ("1h", "3s", etc)
+
+            DURATION is parsed as per systemd. "1 hour 3 seconds", "1h", etc are all valid. If a single number with no
+            unit is provided, it will be interpreted as seconds. [env: SYNC_INTERVAL=]
+    -J, --jackett <JACKETT_URL>
+            {src} Source indexers from this Jackett instance
+
+            Basic Auth credentials will be extracted and used as admin password. [env: SYNC_JACKETT_URL=]
+    -S, --sonarr <SONARR_URL>
+            {dst} Sync indexers to this Sonarr instance
+
+
 
 $ indexer-sync --jackett http://$JACKETT_ADMIN_PW@jackett-instance:1234 --sonarr http://$SONARR_API_KEY@sonarr-instance:5678/
  INFO  indexer_sync > Fetching indexers from Jackett
