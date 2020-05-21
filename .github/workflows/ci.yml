@@ -1,7 +1,8 @@
 name: CI
-on:
+on: 
   push:
-    branches: [master]
+    branches: 
+      - '*'
 
 jobs:
   test:
@@ -96,6 +97,7 @@ jobs:
 
   build:
     needs: test
+    if: github.event.ref == 'refs/heads/master'
     name: Build release assets
     runs-on: ${{ matrix.config.os }}
     strategy:
