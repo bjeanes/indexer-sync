@@ -90,7 +90,7 @@ checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 [[package]]
 name = "clap"
 version = "3.0.0-beta.1"
-source = "git+https://github.com/clap-rs/clap/#39ad139a3a6b43bcd90970b6fdda269303fd03cc"
+source = "git+https://github.com/clap-rs/clap/#0b487de9ceb07ff75ce12272e1683a99e44b435c"
 dependencies = [
  "atty",
  "bitflags",
@@ -108,7 +108,7 @@ dependencies = [
 [[package]]
 name = "clap_derive"
 version = "3.0.0-beta.1"
-source = "git+https://github.com/clap-rs/clap/#39ad139a3a6b43bcd90970b6fdda269303fd03cc"
+source = "git+https://github.com/clap-rs/clap/#0b487de9ceb07ff75ce12272e1683a99e44b435c"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -785,9 +785,9 @@ dependencies = [
 
 [[package]]
 name = "paste"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d53181dcd37421c08d3b69f887784956674d09c3f9a47a04fece2b130a5b346b"
+checksum = "d508492eeb1e5c38ee696371bf7b9fc33c83d46a7d451606b96458fbbbdc2dec"
 dependencies = [
  "paste-impl",
  "proc-macro-hack",
@@ -795,9 +795,9 @@ dependencies = [
 
 [[package]]
 name = "paste-impl"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05ca490fa1c034a71412b4d1edcb904ec5a0981a4426c9eb2128c0fda7a68d17"
+checksum = "84f328a6a63192b333fce5fbb4be79db6758a4d518dfac6d54412f1492f72d32"
 dependencies = [
  "proc-macro-hack",
  "proc-macro2",
@@ -1094,18 +1094,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.110"
+version = "1.0.111"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99e7b308464d16b56eba9964e4972a3eee817760ab60d88c3f86e1fecb08204c"
+checksum = "c9124df5b40cbd380080b2cc6ab894c040a3070d995f5c9dc77e18c34a8ae37d"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.110"
+version = "1.0.111"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "818fbf6bfa9a42d3bfcaca148547aa00c7b915bec71d1757aa2d44ca68771984"
+checksum = "3f2c3ac8e6ca1e9c80b8be1023940162bf81ae3cffbb1809474152f2ce1eb250"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1114,9 +1114,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.53"
+version = "1.0.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "993948e75b189211a9b31a7528f950c6adc21f9720b6438ff80a7fa2f864cea2"
+checksum = "cfe4c1f6427dbc29329c6288e9e748b8b8e0ea42a0aab733e887fa72c22e965d"
 dependencies = [
  "itoa",
  "ryu",
