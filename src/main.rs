@@ -21,13 +21,13 @@ struct Opts {
     /// {src} Source indexers from this Jackett instance
     ///
     /// Basic Auth credentials will be extracted and used as admin password.
-    #[clap(short = "J", long, name = "JACKETT_URL", validator = util::is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
+    #[clap(short = "J", long, value_name = "URL", validator = util::is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
     jackett: Option<Url>,
 
     /// {dst} Sync indexers to this Sonarr instance
     ///
     /// Encoded Basic Auth credentials will be extracted and used as the API token.
-    #[clap(short = "S", long, name = "SONARR_URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
+    #[clap(short = "S", long, value_name = "URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
     sonarr: Option<Url>,
 
     /// Polling mode. Sync every DURATION ("1h", "3s", etc)
@@ -35,7 +35,7 @@ struct Opts {
     /// DURATION is parsed as per systemd. "1 hour 3 seconds", "1h", etc are all
     /// valid. If a single number with no unit is provided, it will be
     /// interpreted as seconds.
-    #[clap(short, long, name = "DURATION", env = "SYNC_INTERVAL", parse(try_from_str = parse_duration::parse::parse))]
+    #[clap(short, long, value_name = "DURATION", env = "SYNC_INTERVAL", parse(try_from_str = parse_duration::parse::parse))]
     interval: Option<Duration>,
 
     /// Limit synced endexers to those matching these terms
@@ -43,7 +43,7 @@ struct Opts {
     /// Provide indexers that you want to update. These values will be case-insensitively substring
     /// matched against indexer/tracker names. Only those which match will be synced. If not
     /// provided, all discovered indexers will be synced.
-    #[clap(name = "INDEXER")]
+    #[clap(value_name = "INDEXERS")]
     indexers_to_sync: Vec<String>,
 }
 
