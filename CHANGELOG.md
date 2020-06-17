@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Added options for setting "seed" criteria for Torrent sources. Unsure if anything beyond Sonarr supports this so
+- Added options for setting 'seed' criteria for Torrent sources. Unsure if anything beyond Sonarr supports this so
   the design may change to accommodate other media managers if so. ([#2](https://github.com/bjeanes/indexer-sync/issues/2))
 
 ### Known Issues
