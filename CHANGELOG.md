@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 
 <small>
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 </small>
 
@@ -18,13 +18,10 @@ _No changes yet_
 ### Added
 
 - Short-hand flags for existing sources and destinations
-- `-i`/`--interval` flag to activate long-running mode which runs the sync
-  every time the duration specified by `-i` has elapsed. The value is
-  interpreted as per [systemd.time] and is interpreted as seconds if no units
-  are provided.
+- `-i`/`--interval` flag to activate long-running mode which runs the sync every time the duration specified by `-i`
+  has elapsed. The value is interpreted as per [systemd.time] and is interpreted as seconds if no units are provided.
 - Ability to filter indexers to sync by name
-- Configurable log levels. Defaults to level 'info' in release builds and
-  'debug' in debug builds.
+- Configurable log levels. Defaults to level 'info' in release builds and 'debug' in debug builds.
 - Pre-built binaries for Linux using musl
 - Pre-built binaries for other semi-common architectures
 - Docker build
@@ -33,8 +30,7 @@ _No changes yet_
 
 ### Changed
 
-- Improved log output from commandwith adjustable log levels (controllable with
-  `RUST_LOG` for now).
+- Improved log output from commandwith adjustable log levels (controllable with `RUST_LOG` for now).
 
 ### Known Issues
 
@@ -51,9 +47,8 @@ _No changes yet_
 
 ### Known Issues
 
-- Sometimes the syncer doesn't correctly identify an existing indexer in
-  Sonarr and attempts to create a new one instead.
-  ([#1](https://github.com/bjeanes/indexer-sync/issues/1))
+- Sometimes the syncer doesn't correctly identify an existing indexer in Sonarr and attempts to create a new one
+  instead. ([#1](https://github.com/bjeanes/indexer-sync/issues/1))
 - `--radarr` flag shows up in `--help` but doesn't actually do anything yet (whoops)
 - Code quality is poor. This first release should be considered a proof-of-concept.
 
