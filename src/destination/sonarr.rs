@@ -1,11 +1,14 @@
 use crate::znab::{Capabilities, Ids};
-use crate::FeedUrls;
+use crate::{FeedUrls, SeedCriteria};
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 use url::Url;
 
 pub struct Sonarr {
     url: Url,
     client: reqwest::Client,
+    public_seed_criteria: SeedCriteria,
+    private_seed_criteria: SeedCriteria,
 }
 
 pub fn new(url: Url) -> Result<Sonarr, Box<dyn std::error::Error>> {
@@ -21,7 +24,12 @@ pub fn new(url: Url) -> Result<Sonarr, Box<dyn std::error::Error>> {
     let client = reqwest::Client::builder()
         .default_headers(headers)
         .build()?;
-    Ok(Sonarr { client, url })
+    Ok(Sonarr {
+        client,
+        url,
+        public_seed_criteria: SeedCriteria::default(),
+        private_seed_criteria: SeedCriteria::default(),
+    })
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,8 +44,8 @@ enum ConfiguredProtocol {
     Torrent {
         minimum_seeders: usize,
         seed_ratio: Option<f32>,
-        seed_time: Option<usize>,             // minutes
-        season_pack_seed_time: Option<usize>, // minutes
+        seed_time: Option<Duration>,
+        season_pack_seed_time: Option<Duration>,
     },
     Usenet,
 }
@@ -115,7 +123,6 @@ impl std::convert::From<SonarrIndexerSchema> for SonarrIndexer {
                     _ => None,
                 }
             })
-            // .unwrap_or_else(default_url);
             .unwrap_or_default();
 
         let categories = from
@@ -163,7 +170,7 @@ impl std::convert::From<SonarrIndexerSchema> for SonarrIndexer {
                     .fields
                     .iter()
                     .find_map(|f| match f {
-                        Field::SeedTime { value } => Some(value.to_owned()),
+                        Field::SeedTime { value } => Some(value.map(|secs| Duration::from_secs(secs * 60))),
                         _ => None,
                     })
                     .expect("seedCriteria.seedTime field should always be present for torrent indexers"),
@@ -171,7 +178,7 @@ impl std::convert::From<SonarrIndexerSchema> for SonarrIndexer {
                     .fields
                     .iter()
                     .find_map(|f| match f {
-                        Field::SeasonPackSeedTime { value } => Some(value.to_owned()),
+                        Field::SeasonPackSeedTime { value } => Some(value.map(|secs| Duration::from_secs(secs * 60))),
                         _ => None,
                     })
                     .expect("seedCriteria.seasonPackSeedTime field should always be present for torrent indexers"),
@@ -229,9 +236,11 @@ impl std::convert::From<SonarrIndexer> for SonarrIndexerSchema {
                     value: minimum_seeders,
                 },
                 Field::SeedRatio { value: seed_ratio },
-                Field::SeedTime { value: seed_time },
+                Field::SeedTime {
+                    value: seed_time.map(|duration| duration.as_secs() / 60),
+                },
                 Field::SeasonPackSeedTime {
-                    value: season_pack_seed_time,
+                    value: season_pack_seed_time.map(|duration| duration.as_secs() / 60),
                 },
             ]);
         }
@@ -302,14 +311,14 @@ enum Field {
     #[serde(rename = "seedCriteria.seedTime")]
     SeedTime {
         #[serde(default)]
-        value: Option<usize>,
+        value: Option<u64>, // minutes
     },
 
     /// The time a torrent should be seeded before stopping, empty is download client's default
     #[serde(rename = "seedCriteria.seasonPackSeedTime")]
     SeasonPackSeedTime {
         #[serde(default)]
-        value: Option<usize>,
+        value: Option<u64>, // minutes
     },
     #[serde(other)]
     Other,
@@ -418,6 +427,16 @@ impl Sonarr {
         Ok(indexers)
     }
 
+    pub fn private_seed_criteria(mut self, criteria: SeedCriteria) -> Self {
+        self.private_seed_criteria = criteria;
+        self
+    }
+
+    pub fn public_seed_criteria(mut self, criteria: SeedCriteria) -> Self {
+        self.public_seed_criteria = criteria;
+        self
+    }
+
     pub async fn update_indexers(
         self,
         indexers: &[crate::Indexer],
@@ -477,6 +496,30 @@ impl Sonarr {
                     sonarr_indexer.url = feed.url.to_owned();
                     sonarr_indexer.categories = feed.capabilities.series().ids();
                     sonarr_indexer.anime_categories = feed.capabilities.anime().ids();
+                    match sonarr_indexer.protocol {
+                        ConfiguredProtocol::Torrent {
+                            minimum_seeders,
+                            seed_ratio,
+                            seed_time,
+                            season_pack_seed_time,
+                        } => {
+                            let criteria = if indexer.privacy == crate::IndexerPrivacy::Public {
+                                &self.public_seed_criteria
+                            } else {
+                                &self.private_seed_criteria
+                            };
+
+                            sonarr_indexer.protocol = ConfiguredProtocol::Torrent {
+                                minimum_seeders: minimum_seeders,
+                                seed_ratio: criteria.seed_ratio.or(seed_ratio),
+                                seed_time: criteria.seed_time.or(seed_time),
+                                season_pack_seed_time: criteria
+                                    .season_pack_seed_time
+                                    .or(season_pack_seed_time),
+                            }
+                        }
+                        _ => panic!("womp womp"),
+                    }
                 }
                 FeedUrls {
                     rss: Some(ref feed),

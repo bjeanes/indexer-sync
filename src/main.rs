@@ -16,7 +16,13 @@ pub use znab::*;
 
 /// At least one {src} and at least one {dst} must be specified in order to sync.
 #[derive(Clap, Debug)]
-#[clap(version = crate_version!(), author = crate_authors!(), group = ArgGroup::new("src").multiple(true).required(true), group = ArgGroup::new("dst").multiple(true).required(true))]
+#[clap(
+    version = crate_version!(),
+    author = crate_authors!(),
+    group = ArgGroup::new("src").multiple(true).required(true),
+    group = ArgGroup::new("dst").multiple(true).required(true),
+    group = ArgGroup::new("tv").multiple(true),
+)]
 struct Opts {
     /// {src} Source indexers from this Jackett instance
     ///
@@ -27,7 +33,7 @@ struct Opts {
     /// {dst} Sync indexers to this Sonarr instance
     ///
     /// Encoded Basic Auth credentials will be extracted and used as the API token.
-    #[clap(short = "S", long, value_name = "URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst")]
+    #[clap(short = "S", long, value_name = "URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst", group = "tv")]
     sonarr: Option<Url>,
 
     /// Polling mode. Sync every DURATION ("1h", "3s", etc)
@@ -45,9 +51,70 @@ struct Opts {
     /// provided, all discovered indexers will be synced.
     #[clap(value_name = "INDEXERS")]
     indexers_to_sync: Vec<String>,
+
+    /// Target seed ratio for media media, for managers which support it ("1.0", "10", "0.1", etc)
+    ///
+    /// Defaults to manager default, if not provided.
+    #[clap(long, value_name = "RATIO", env = "SYNC_SEED_RATIO")]
+    seed_ratio: Option<f32>,
+
+    /// Minimum time to seed media, for managers which support it ("1h", "2w", etc)
+    ///
+    /// Defaults to manager default, if not provided.
+    #[clap(long, value_name = "DURATION", env = "SYNC_SEED_TIME", parse(try_from_str = parse_duration::parse::parse))]
+    seed_time: Option<Duration>,
+
+    /// Minimum time to seed a season pack, for managers which support it ("1h", "2w", etc)
+    ///
+    /// Defaults to `--seed-time`, if not provided.
+    #[clap(long, value_name = "DURATION", env = "SYNC_SEASON_PACK_SEED_TIME", parse(try_from_str = parse_duration::parse::parse), requires = "tv")]
+    season_pack_seed_time: Option<Duration>,
+
+    /// target seed ratio for media from public trackers, for managers which support it ("1.0", "10", "0.1", etc)
+    ///
+    /// defaults to `--seed-ratio`, if not provided.
+    #[clap(long, env = "sync_public_seed_ratio")]
+    public_seed_ratio: Option<f32>,
+
+    /// Minimum time to seed media from public trackers, for managers which support it ("1h", "2w", etc)
+    ///
+    /// Defaults to `--seed-time`, if not provided.
+    #[clap(long, value_name = "DURATION", env = "SYNC_PUBLIC_SEED_TIME", parse(try_from_str = parse_duration::parse::parse))]
+    public_seed_time: Option<Duration>,
+
+    /// Minimum time to seed a season pack from public trackers, for managers which support it ("1h", "2w", etc)
+    ///
+    /// Defaults to `--public-seed-time`, if not provided.
+    #[clap(long, value_name = "DURATION", env = "SYNC_PUBLIC_SEASON_PACK_SEED_TIME", parse(try_from_str = parse_duration::parse::parse), requires = "tv")]
+    public_season_pack_seed_time: Option<Duration>,
+
+    /// Target seed ratio for media from private trackers, for managers which support it ("1.0", "10", "0.1", etc)
+    ///
+    /// Defaults to `--seed-ratio`, if not provided.
+    #[clap(long, env = "SYNC_PRIVATE_SEED_RATIO")]
+    private_seed_ratio: Option<f32>,
+
+    /// Minimum time to seed media from private trackers, for managers which support it ("1h", "2w", etc)
+    ///
+    /// Defaults to `--seed-time`, if not provided.
+    #[clap(long, value_name = "DURATION", env = "SYNC_PRIVATE_SEED_TIME", parse(try_from_str = parse_duration::parse::parse))]
+    private_seed_time: Option<Duration>,
+
+    /// Minimum time to seed a season pack from private trackers, for managers which support it ("1h", "2w", etc)
+    ///
+    /// Defaults to `--private-seed-time`, if not provided.
+    #[clap(long, value_name = "DURATION", env = "SYNC_PRIVATE_SEASON_PACK_SEED_TIME", parse(try_from_str = parse_duration::parse::parse), requires = "tv")]
+    private_season_pack_seed_time: Option<Duration>,
 }
 
-#[derive(Debug, Deserialize, Clone, Copy)]
+#[derive(Default)]
+pub struct SeedCriteria {
+    seed_ratio: Option<f32>,
+    seed_time: Option<Duration>,
+    season_pack_seed_time: Option<Duration>,
+}
+
+#[derive(Debug, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum IndexerPrivacy {
     Public,
@@ -123,7 +190,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     log_builder.try_init()?;
 
-    let opts = Opts::parse();
+    let mut opts = Opts::parse();
+
+    opts.private_seed_time = opts.private_seed_time.or_else(|| opts.seed_time);
+    opts.public_seed_time = opts.public_seed_time.or_else(|| opts.seed_time);
+    opts.private_seed_ratio = opts.private_seed_ratio.or_else(|| opts.seed_ratio);
+    opts.public_seed_ratio = opts.public_seed_ratio.or_else(|| opts.seed_ratio);
+    opts.season_pack_seed_time = opts.season_pack_seed_time.or_else(|| opts.seed_time);
+    opts.private_season_pack_seed_time = opts
+        .private_season_pack_seed_time
+        .or_else(|| opts.private_seed_time);
+    opts.public_season_pack_seed_time = opts
+        .public_season_pack_seed_time
+        .or_else(|| opts.public_seed_time);
 
     loop {
         let mut indexers = vec![];
@@ -132,9 +211,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // FETCH
 
-        if let Some(url) = opts.jackett.clone() {
+        if let Some(ref url) = opts.jackett {
             log::info!("Fetching indexers from Jackett");
-            let jackett = jackett::new(url).await?;
+            let jackett = jackett::new(url.clone()).await?;
             let jackett_indexers = jackett.fetch_indexers().await?;
             log::debug!("Fetched: {}", {
                 let mut i = jackett_indexers
@@ -180,9 +259,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if indexers.is_empty() {
             log::warn!("No indexers to sync");
         } else {
-            if let Some(url) = opts.sonarr.clone() {
+            if let Some(ref url) = opts.sonarr {
                 log::info!("Updating indexers in Sonarr");
-                sonarr = sonarr::new(url)?;
+                sonarr = sonarr::new(url.clone())?
+                    .private_seed_criteria(SeedCriteria {
+                        seed_time: opts.private_seed_time,
+                        seed_ratio: opts.private_seed_ratio,
+                        season_pack_seed_time: opts.private_season_pack_seed_time,
+                    })
+                    .public_seed_criteria(SeedCriteria {
+                        seed_time: opts.public_seed_time,
+                        seed_ratio: opts.public_seed_ratio,
+                        season_pack_seed_time: opts.public_season_pack_seed_time,
+                    });
                 updates.push(sonarr.update_indexers(&indexers));
             }
 

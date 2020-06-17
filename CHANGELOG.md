@@ -11,7 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [v0.3.0] - Unreleased
 
-_No changes yet_
+### Added
+
+- Added options for setting "seed" criteria for Torrent sources. Unsure if anything beyond Sonarr supports this so
+  the design may change to accommodate other media managers if so. ([#2](https://github.com/bjeanes/indexer-sync/issues/2))
+
+### Known Issues
+
+- Code quality is poor. These first releases should be considered proofs-of-concept.
 
 ## [v0.2.0] - 2020-05-19
 

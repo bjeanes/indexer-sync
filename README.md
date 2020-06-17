@@ -30,21 +30,29 @@ $ docker pull bjeanes/indexer-sync:v0.2     # built from specified tagged releas
 This is very early work-in-progress so the following is aspirational:
 
 ``` sh-session
+$ indexer-sync --jackett http://$JACKETT_ADMIN_PW@jackett-instance:1234 --sonarr http://$SONARR_API_KEY@sonarr-instance:5678/
+ INFO  indexer_sync > Fetching indexers from Jackett
+ INFO  indexer_sync > Updating indexers in Sonarr
+ INFO  indexer_sync::destination::sonarr > Updating ETTV {jackett:ettv} in Sonarr (id: 28)
+ INFO  indexer_sync::destination::sonarr > Updating RARBG {jackett:rarbg} in Sonarr (id: 35)
+...
+
+
 $ indexer-sync --help
 indexer-sync 0.3.0
 Bo Jeanes <me@bjeanes.com>
 At least one {src} and at least one {dst} must be specified in order to sync
 
 USAGE:
-    indexer-sync [OPTIONS] <--jackett <JACKETT_URL>> <--sonarr <SONARR_URL>> [INDEXER]...
+    indexer-sync [OPTIONS] <--jackett <URL>> <--sonarr <URL>> [INDEXERS]...
 
 ARGS:
-    <INDEXER>...
+    <INDEXERS>...
             Limit synced endexers to those matching these terms
 
-            Provide indexers that you want to update. These values will be case-insensitively substring matched against
-            indexer/tracker names. Only those which match will be synced. If not provided, all discovered indexers will
-            be synced.
+            Provide indexers that you want to update. These values will be case-insensitively
+            substring matched against indexer/tracker names. Only those which match will be synced.
+            If not provided, all discovered indexers will be synced.
 
 FLAGS:
     -h, --help
@@ -58,23 +66,63 @@ OPTIONS:
     -i, --interval <DURATION>
             Polling mode. Sync every DURATION ("1h", "3s", etc)
 
-            DURATION is parsed as per systemd. "1 hour 3 seconds", "1h", etc are all valid. If a single number with no
-            unit is provided, it will be interpreted as seconds. [env: SYNC_INTERVAL=]
-    -J, --jackett <JACKETT_URL>
+            DURATION is parsed as per systemd. "1 hour 3 seconds", "1h", etc are all valid. If a
+            single number with no unit is provided, it will be interpreted as seconds. [env:
+            SYNC_INTERVAL=]
+    -J, --jackett <URL>
             {src} Source indexers from this Jackett instance
 
-            Basic Auth credentials will be extracted and used as admin password. [env: SYNC_JACKETT_URL=]
-    -S, --sonarr <SONARR_URL>
+            Basic Auth credentials will be extracted and used as admin password. [env:
+            SYNC_JACKETT_URL=]
+        --private-season-pack-seed-time <DURATION>
+            Minimum time to seed a season pack from private trackers, for managers which support it
+            ("1h", "2w", etc)
+
+            Defaults to `--private-seed-time`, if not provided. [env:
+            SYNC_PRIVATE_SEASON_PACK_SEED_TIME=]
+        --private-seed-ratio <private-seed-ratio>
+            Target seed ratio for media from private trackers, for managers which support it ("1.0",
+            "10", "0.1", etc)
+
+            Defaults to `--seed-ratio`, if not provided. [env: SYNC_PRIVATE_SEED_RATIO=]
+        --private-seed-time <DURATION>
+            Minimum time to seed media from private trackers, for managers which support it ("1h",
+            "2w", etc)
+
+            Defaults to `--seed-time`, if not provided. [env: SYNC_PRIVATE_SEED_TIME=]
+        --public-season-pack-seed-time <DURATION>
+            Minimum time to seed a season pack from public trackers, for managers which support it
+            ("1h", "2w", etc)
+
+            Defaults to `--public-seed-time`, if not provided. [env:
+            SYNC_PUBLIC_SEASON_PACK_SEED_TIME=]
+        --public-seed-ratio <public-seed-ratio>
+            target seed ratio for media from public trackers, for managers which support it ("1.0",
+            "10", "0.1", etc)
+
+            defaults to `--seed-ratio`, if not provided. [env: sync_public_seed_ratio=]
+        --public-seed-time <DURATION>
+            Minimum time to seed media from public trackers, for managers which support it ("1h",
+            "2w", etc)
+
+            Defaults to `--seed-time`, if not provided. [env: SYNC_PUBLIC_SEED_TIME=]
+        --season-pack-seed-time <DURATION>
+            Minimum time to seed a season pack, for managers which support it ("1h", "2w", etc)
+
+            Defaults to `--seed-time`, if not provided. [env: SYNC_SEASON_PACK_SEED_TIME=]
+        --seed-ratio <RATIO>
+            Target seed ratio for media media, for managers which support it ("1.0", "10", "0.1",
+            etc)
+
+            Defaults to manager default, if not provided. [env: SYNC_SEED_RATIO=]
+        --seed-time <DURATION>
+            Minimum time to seed media, for managers which support it ("1h", "2w", etc)
+
+            Defaults to manager default, if not provided. [env: SYNC_SEED_TIME=]
+    -S, --sonarr <URL>
             {dst} Sync indexers to this Sonarr instance
 
-
-
-$ indexer-sync --jackett http://$JACKETT_ADMIN_PW@jackett-instance:1234 --sonarr http://$SONARR_API_KEY@sonarr-instance:5678/
- INFO  indexer_sync > Fetching indexers from Jackett
- INFO  indexer_sync > Updating indexers in Sonarr
- INFO  indexer_sync::destination::sonarr > Updating ETTV {jackett:ettv} in Sonarr (id: 28)
- INFO  indexer_sync::destination::sonarr > Updating RARBG {jackett:rarbg} in Sonarr (id: 35)
-...
+            Encoded Basic Auth credentials will be extracted and used as the API token. [env:
 ```
 
 ## Contributing
@@ -93,7 +141,7 @@ there are bound to be ways in which I don't yet know it's rough.
 * [x] Pull indexer definitions from Jackett
 * [x] Add/update indexers in Sonarr
 * [ ] Add/update indexers in Radarr
-* [ ] Allowing the specification of seed criteria
+* [x] Allowing the specification of seed criteria
 
    In particular, allow setting it separately for public vs private trackers
 * [x] Long-running mode where it polls and updates definitions on a defined interval
