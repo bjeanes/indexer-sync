@@ -123,6 +123,35 @@ OPTIONS:
             {dst} Sync indexers to this Sonarr instance
 
             Encoded Basic Auth credentials will be extracted and used as the API token. [env:
+            SYNC_SONARR_URL=]
+```
+
+### `docker-compose` example
+
+This is what I use in my own media management setup:
+
+``` yml
+services:
+  indexer_sync:
+    image: bjeanes/indexer-sync:latest # or `unstable`, `v0.2`, etc
+    container-name: indexer_sync
+    environment:
+      # Services
+      SYNC_SONARR_URL: http://APIKEY@sonarr-instance:8989
+      SYNC_JACKETT_URL: http://ADMIN_PW@jackett-instance:9117
+
+      # Seeding criteria
+      SYNC_PUBLIC_SEED_RATIO: 3.0
+      SYNC_PUBLIC_SEED_TIME: 1 week
+      SYNC_PUBLIC_SEASON_PACK_SEED_TIME: 1 month
+      SYNC_PRIVATE_SEED_RATIO: 100
+      SYNC_PRIVATE_SEED_TIME: 1 year
+
+      # Sync trackers & indexers every hour
+      SYNC_INTERVAL: 1 hour
+
+      # Info-level logs for dependencies, but debug level for the main logic
+      RUST_LOG: info,indexer_sync=debug
 ```
 
 ## Contributing
@@ -165,7 +194,7 @@ there are bound to be ways in which I don't yet know it's rough.
    It would filter the categories each indexer supports to the ones from that
    list when passed to the media manager.
 * [x] Docker image
-   * [ ] `docker-compose.yml` example so it can be set-and-forget
+   * [x] `docker-compose.yml` example so it can be set-and-forget
 * [ ] Pull indexer definitions from NZBHydra2
 * [ ] Add/update indexers in Lidarr
 * After that, I'd be happy to grow this tool to support the following, but I do not personally use these:
