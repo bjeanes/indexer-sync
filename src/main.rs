@@ -204,6 +204,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .public_season_pack_seed_time
         .or_else(|| opts.public_seed_time);
 
+    let opts = opts; // drop mut marker
+
     loop {
         let mut indexers = vec![];
         let mut updates = vec![];
