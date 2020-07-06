@@ -27,13 +27,13 @@ struct Opts {
     /// {src} Source indexers from this Jackett instance
     ///
     /// Basic Auth credentials will be extracted and used as admin password.
-    #[clap(short = "J", long, value_name = "URL", validator = util::is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
+    #[clap(short = 'J', long, value_name = "URL", validator = util::is_http_url, env = "SYNC_JACKETT_URL", group = "src")]
     jackett: Option<Url>,
 
     /// {dst} Sync indexers to this Sonarr instance
     ///
     /// Encoded Basic Auth credentials will be extracted and used as the API token.
-    #[clap(short = "S", long, value_name = "URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst", group = "tv")]
+    #[clap(short = 'S', long, value_name = "URL", validator = util::is_http_url, env = "SYNC_SONARR_URL", group = "dst", group = "tv")]
     sonarr: Option<Url>,
 
     /// Polling mode. Sync every DURATION ("1h", "3s", etc)
