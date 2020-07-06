@@ -17,6 +17,7 @@ RUN cargo build --release
 ADD --chown=rust:rust . ./
 
 # Build our application.
+RUN touch src/main.rs # Docker's `ADD` does not bust cargo's build cache
 RUN cargo build --release
 
 # Now, we need to build our _real_ Docker container, copying in `bump-api`.
