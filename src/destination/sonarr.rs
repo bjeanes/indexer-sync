@@ -510,7 +510,7 @@ impl Sonarr {
                             };
 
                             sonarr_indexer.protocol = ConfiguredProtocol::Torrent {
-                                minimum_seeders: minimum_seeders,
+                                minimum_seeders,
                                 seed_ratio: criteria.seed_ratio.or(seed_ratio),
                                 seed_time: criteria.seed_time.or(seed_time),
                                 season_pack_seed_time: criteria
