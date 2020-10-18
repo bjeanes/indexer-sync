@@ -222,7 +222,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .iter()
                     .map(|i| i.name.as_ref())
                     .collect::<Vec<&str>>();
-                i.sort();
+                i.sort_unstable();
                 i.join(", ")
             });
             indexers.extend(jackett_indexers);
