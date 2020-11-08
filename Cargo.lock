@@ -102,7 +102,7 @@ checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 [[package]]
 name = "clap"
 version = "3.0.0-beta.2"
-source = "git+https://github.com/clap-rs/clap/#97b4fb639f846c5b910c318dd6c6f7d6da779d7d"
+source = "git+https://github.com/clap-rs/clap/#3f2eeb5417d5e802282af8574081b4ea385b8a1d"
 dependencies = [
  "atty",
  "bitflags",
@@ -120,7 +120,7 @@ dependencies = [
 [[package]]
 name = "clap_derive"
 version = "3.0.0-beta.2"
-source = "git+https://github.com/clap-rs/clap/#97b4fb639f846c5b910c318dd6c6f7d6da779d7d"
+source = "git+https://github.com/clap-rs/clap/#3f2eeb5417d5e802282af8574081b4ea385b8a1d"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -818,9 +818,9 @@ dependencies = [
 
 [[package]]
 name = "os_str_bytes"
-version = "2.3.0"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ced912e1439b63a8172b943887c33373f226a4a9cfab95d09c0e3c44851d04d4"
+checksum = "afb2e1c3ee07430c2cf76151675e583e0f19985fa6efae47d6848a3e2c824f85"
 
 [[package]]
 name = "parking_lot"
