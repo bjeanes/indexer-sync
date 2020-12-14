@@ -475,7 +475,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "tokio 0.3.4",
+ "tokio 0.3.6",
  "url",
 ]
 
@@ -782,6 +782,12 @@ dependencies = [
  "hermit-abi",
  "libc",
 ]
+
+[[package]]
+name = "once_cell"
+version = "1.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13bd41f508810a131401606d54ac32a467c97172d74ba7662562ebba5ad07fa0"
 
 [[package]]
 name = "openssl"
@@ -1457,18 +1463,18 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "0.3.4"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9dfe2523e6fa84ddf5e688151d4e5fddc51678de9752c6512a24714c23818d61"
+checksum = "720ba21c25078711bf456d607987d95bce90f7c3bea5abe1db587862e7a1e87c"
 dependencies = [
  "autocfg",
  "bytes 0.6.0",
  "futures-core",
- "lazy_static",
  "libc",
  "memchr",
  "mio 0.7.6",
  "num_cpus",
+ "once_cell",
  "parking_lot",
  "pin-project-lite 0.2.0",
  "signal-hook-registry",
