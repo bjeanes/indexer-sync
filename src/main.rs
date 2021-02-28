@@ -192,17 +192,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut opts = Opts::parse();
 
-    opts.private_seed_time = opts.private_seed_time.or_else(|| opts.seed_time);
-    opts.public_seed_time = opts.public_seed_time.or_else(|| opts.seed_time);
-    opts.private_seed_ratio = opts.private_seed_ratio.or_else(|| opts.seed_ratio);
-    opts.public_seed_ratio = opts.public_seed_ratio.or_else(|| opts.seed_ratio);
-    opts.season_pack_seed_time = opts.season_pack_seed_time.or_else(|| opts.seed_time);
+    opts.private_seed_time = opts.private_seed_time.or(opts.seed_time);
+    opts.public_seed_time = opts.public_seed_time.or(opts.seed_time);
+    opts.private_seed_ratio = opts.private_seed_ratio.or(opts.seed_ratio);
+    opts.public_seed_ratio = opts.public_seed_ratio.or(opts.seed_ratio);
+    opts.season_pack_seed_time = opts.season_pack_seed_time.or(opts.seed_time);
     opts.private_season_pack_seed_time = opts
         .private_season_pack_seed_time
-        .or_else(|| opts.private_seed_time);
+        .or(opts.private_seed_time);
     opts.public_season_pack_seed_time = opts
         .public_season_pack_seed_time
-        .or_else(|| opts.public_seed_time);
+        .or(opts.public_seed_time);
 
     let opts = opts; // drop mut marker
 
