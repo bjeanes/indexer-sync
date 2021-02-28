@@ -200,9 +200,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     opts.private_season_pack_seed_time = opts
         .private_season_pack_seed_time
         .or(opts.private_seed_time);
-    opts.public_season_pack_seed_time = opts
-        .public_season_pack_seed_time
-        .or(opts.public_seed_time);
+    opts.public_season_pack_seed_time = opts.public_season_pack_seed_time.or(opts.public_seed_time);
 
     let opts = opts; // drop mut marker
 
