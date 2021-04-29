@@ -155,12 +155,12 @@ struct Potato {
 }
 
 #[derive(Debug)]
-struct RSS(Url);
+struct Rss(Url);
 
 #[derive(Debug)]
 struct FeedUrls {
     potato: Option<Potato>,
-    rss: Option<RSS>,
+    rss: Option<Rss>,
     torznab: Option<Torznab>,
     newznab: Option<Newznab>,
 }

@@ -5,7 +5,7 @@ use url::Url;
 use crate::FeedUrls;
 use crate::IndexerPrivacy;
 use crate::SourceIndexer;
-use crate::{Potato, Torznab, RSS};
+use crate::{Potato, Rss, Torznab};
 
 #[derive(Debug, Deserialize)]
 pub struct Indexer {
@@ -121,7 +121,7 @@ impl Jackett {
                         } else {
                             None
                         },
-                        rss: Some(RSS({
+                        rss: Some(Rss({
                             let mut rss_url = self.url.join("rss").unwrap();
                             rss_url
                                 .query_pairs_mut()
