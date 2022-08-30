@@ -1,3 +1,5 @@
+🚧🚧🚧 **NOT MAINTAINED** - Just use Prowlarr 🚧🚧🚧
+
 # Indexer Sync
 
 Automatically configure torrent and usenet indexers in Sonarr, Radarr,
